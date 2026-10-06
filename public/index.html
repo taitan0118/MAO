@@ -404,7 +404,10 @@ function closeModal(){stopScan();document.getElementById("ov").classList.remove(
 function setErr(id,msg){var el=document.getElementById(id);if(!el)return;el.classList.toggle("bad",!!msg);var m=document.getElementById(id+"_m");if(m)m.textContent=msg||""}
 
 function toast(msg,kind){var d=document.createElement("div");d.className="toast "+(kind||"");d.textContent=msg;document.getElementById("toasts").appendChild(d);setTimeout(function(){d.remove()},3800)}
-function beep(){try{var c=new (window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=880;g.gain.setValueAtTime(.18,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.35);o.start();o.stop(c.currentTime+.35)}catch(e){}}
+// iPhone/iPad chỉ cho phát tiếng sau lần chạm đầu tiên: dùng chung một AudioContext, mở khóa khi chạm
+var AC=null;function audio(){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==="suspended")AC.resume()}catch(e){}return AC}
+["touchend","click"].forEach(function(t){document.addEventListener(t,audio,{once:true,passive:true})});
+function beep(){var c=audio();if(!c)return;try{var o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=880;g.gain.setValueAtTime(.18,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.35);o.start();o.stop(c.currentTime+.35)}catch(e){}}
 function notify(msg){toast(msg,"ok");beep();unseen++;updateBadges();if(window.msaoDesktop)msaoDesktop.notify(msg)}
 function updateBadges(){
   var n=orders.filter(function(o){return o.status==="cho"}).length;
