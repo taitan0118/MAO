@@ -481,7 +481,7 @@ const server = http.createServer(async (req, res) => {
     if (p.startsWith('/vendor/')) { const v = VENDOR[path.basename(p)]; return v ? sendFile(res, path.join(ROOT, 'node_modules', v)) : json(res, 404, {}); }
     if (p.startsWith('/anh/')) return sendFile(res, path.join(IMG_DIR, path.basename(p)));
     if (p === '/manifest.webmanifest') return sendFile(res, path.join(ROOT, 'public', 'manifest.webmanifest'));
-    if (/^\/icon(-180|-512)?\.(svg|png)$/.test(p)) return sendFile(res, path.join(ROOT, 'public', p.slice(1)));
+    if (/^\/(icon(-180|-512)?\.(svg|png)|missing-logo\.js)$/.test(p)) return sendFile(res, path.join(ROOT, 'public', p.slice(1)));
     if (p === '/' || p === '/nhanvien' || p === '/chuquan') return sendFile(res, path.join(ROOT, 'public', 'index.html'));
     res.writeHead(404); res.end('Không tìm thấy');
   } catch (e) {

@@ -302,7 +302,13 @@ h4{color:#2563EB}
 /* Logo MSAO trên mọi màn hình */
 .top{flex-direction:row!important;align-items:center!important}
 .brandrow{display:flex;align-items:center;gap:10px;min-width:0}
-.msao-mark{width:30px;height:30px;flex:0 0 auto}
+/* Logo thương hiệu: logo Missing trong ô navy + chữ AO = MSAO */
+.brand-lock{display:flex;align-items:center;gap:3px;flex:none}
+.logo-tile{width:36px;height:36px;border-radius:9px;background:#0F172A;display:grid;place-items:center;flex:none}
+#site-logo{display:block;width:28px;height:28px}
+#site-logo svg{display:block}
+#site-word{font-family:Manrope,system-ui,-apple-system,"Segoe UI",sans-serif;font-weight:800;font-size:22px;letter-spacing:-.02em;color:#fff;line-height:1}
+.brand-sep{width:1px;height:28px;background:rgba(255,255,255,.35);margin:0 4px;flex:none}
 .msao-tag{font-weight:800;font-size:12px;letter-spacing:.14em;color:#fff;background:rgba(15,23,42,.28);padding:5px 9px;border-radius:8px}
 .rcpt .rlogo{display:block;margin:0 auto 6px;max-width:60%;max-height:64px;filter:grayscale(1)}
 .rcpt .msao-foot{font-size:9px;margin-top:6px;color:#333}
@@ -315,14 +321,16 @@ h4{color:#2563EB}
 <body>
 
 <div class="top" id="topBar">
-  <div class="brandrow"><svg class="msao-mark" viewBox="0 0 114 114" role="img" aria-label="MSAO"><title>MSAO · Missing App Order</title><g fill="#FFFFFF"><rect x="0" y="0" width="18" height="18" rx="5"/><rect x="0" y="24" width="18" height="18" rx="5"/><rect x="0" y="48" width="18" height="18" rx="5"/><rect x="0" y="72" width="18" height="18" rx="5"/><rect x="0" y="96" width="18" height="18" rx="5"/><rect x="24" y="24" width="18" height="18" rx="5"/><rect x="48" y="48" width="18" height="18" rx="5"/><rect x="72" y="24" width="18" height="18" rx="5"/><rect x="96" y="24" width="18" height="18" rx="5"/><rect x="96" y="48" width="18" height="18" rx="5"/><rect x="96" y="72" width="18" height="18" rx="5"/><rect x="96" y="96" width="18" height="18" rx="5"/></g><circle cx="105" cy="9" r="9" fill="#0F172A"/></svg><div class="brand"><b id="shopLabel">Quán</b><span id="whoLabel"></span></div></div>
-  <span class="msao-tag" title="Missing App Order">MSAO</span>
+  <div class="brandrow"><span class="brand-lock" role="img" aria-label="MSAO · Missing App Order" title="MSAO · Missing App Order"><span class="logo-tile"><span id="site-logo"></span></span><span id="site-word">AO</span></span><span class="brand-sep"></span><div class="brand"><b id="shopLabel">Quán</b><span id="whoLabel"></span></div></div>
   <div class="seg">
     <button id="bC" class="on" onclick="show('customer')">Khách</button>
     <button id="bS" onclick="show('staff')">Nhân viên<span id="sBadge"></span></button>
     <button id="bO" onclick="show('owner')">Chủ quán</button>
   </div>
-</div>
+</div><script src="/missing-logo.js"></script>
+<script>document.getElementById("site-logo").innerHTML=MissingLogo.svg({size:28,theme:"dark",label:"MSAO"});
+if(!/[?&]ban=/.test(location.search))MissingLogo.intro({target:"#site-logo",word:"#site-word",theme:"dark"});</script>
+
 <div id="netBlockView" class="hidden"></div>
 
 <div id="landing" class="hidden"><div class="wrap" style="padding-top:30px" id="landingBody"></div></div>
