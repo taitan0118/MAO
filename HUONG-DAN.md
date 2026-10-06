@@ -102,6 +102,19 @@ Thử xong, **xóa thư mục `data`** trước khi dùng thật.
 
 ---
 
+## Bộ cài tự động trên GitHub (Windows, macOS, Android)
+
+Mỗi lần đẩy mã lên nhánh `main` của repo, GitHub Actions (`.github/workflows/bo-cai.yml`) tự chạy kiểm tra rồi tạo:
+- `MSAO-Setup-<phiên bản>.exe` (Windows, POS Windows)
+- `MSAO-<phiên bản>-mac-arm64.dmg`, `MSAO-<phiên bản>-mac-x64.dmg` (macOS, chưa có chữ ký Apple)
+- `MSAO-<phiên bản>-android.apk` (Android, POS Android; Node.js nhúng bằng nodejs-mobile)
+
+Tải ở mục **Releases → ban-moi-nhat** của repo. Đổi phiên bản: sửa `version` trong `package.json` và `versionCode`/`versionName` trong `android/app/build.gradle`.
+
+App Android (`android/`): chế độ *máy chính* chạy `server.js` trong dịch vụ chạy nền (giữ WiFi, tự chạy khi bật máy), chế độ *kết nối* mở trang của máy chính. Khóa ký `android/app/msao-release.jks` phải giữ nguyên để bản sau cài đè được; giữ repo ở chế độ Private.
+
+iPhone/iPad: không có app, dùng Safari → Thêm vào MH chính (Apple không cho chạy máy chủ ngầm và app ngoài App Store).
+
 ## Tạo bộ cài ứng dụng desktop (MSAO-Setup.exe)
 
 Làm trên một máy Windows có Internet, đã cài Node.js LTS:
@@ -129,6 +142,8 @@ du-lieu-mau.js     Bộ dữ liệu mẫu
 test.js            Kiểm tra tự động luồng chính: node test.js
 desktop/           Ứng dụng desktop (Electron): main.js, preload.js, icon
 build/             Icon và script tường lửa cho bộ cài (electron-builder)
+android/           App Android (Java + Node.js nhúng)
+.github/workflows/ Tạo bộ cài tự động
 tao-bo-cai.bat     Tạo MSAO-Setup.exe
 ```
 
