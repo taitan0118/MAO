@@ -1,0 +1,9 @@
+node_modules/
+data/
+dist/
+android/.gradle/
+android/app/build/
+android/app/.cxx/
+android/app/libnode/
+android/app/src/main/assets/nodejs-project/
+tools/

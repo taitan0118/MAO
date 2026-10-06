@@ -1,0 +1,97 @@
+# Tạo bộ cài MSAO cho Windows (.exe), macOS (.dmg), Android (.apk) mỗi khi đẩy mã lên nhánh main.
+# Kết quả nằm ở mục Releases, bản "ban-moi-nhat".
+name: Tao bo cai MSAO
+on:
+  push: { branches: [main] }
+  workflow_dispatch:
+permissions: { contents: write }
+
+jobs:
+  kiem-tra:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: node test.js
+      - name: Thử máy chủ bản Android
+        run: |
+          mkdir -p /tmp/a && cp server.js du-lieu-mau.js android/nodejs-project/android-main.js /tmp/a/ && cp -r public /tmp/a/
+          node /tmp/a/android-main.js /tmp/a/data 192.168.1.50 & sleep 2
+          curl -fsS http://127.0.0.1:3000/api/state?as=guest | grep -q '192.168.1.50:3000'
+          kill %1
+
+  windows:
+    needs: kiem-tra
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm install
+      - run: npx electron-builder --win nsis --x64 --publish never
+      - uses: actions/upload-artifact@v4
+        with: { name: windows, path: dist/*.exe, if-no-files-found: error }
+
+  mac:
+    needs: kiem-tra
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm install
+      - run: npx electron-builder --mac dmg --x64 --arm64 --publish never
+        env: { CSC_IDENTITY_AUTO_DISCOVERY: 'false' }
+      - uses: actions/upload-artifact@v4
+        with: { name: mac, path: dist/*.dmg, if-no-files-found: error }
+
+  android:
+    needs: kiem-tra
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm install --omit=dev
+      - uses: actions/setup-java@v4
+        with: { distribution: temurin, java-version: '17' }
+      - uses: gradle/actions/setup-gradle@v4
+        with: { gradle-version: '8.9' }
+      - name: Tải Node.js cho Android (nodejs-mobile)
+        env: { GH_TOKEN: '${{ github.token }}' }
+        run: |
+          gh release download --repo nodejs-mobile/nodejs-mobile --pattern '*android*.zip' --dir /tmp/nm
+          unzip -q /tmp/nm/*.zip -d /tmp/nm/x
+          SO=$(find /tmp/nm/x -path '*arm64-v8a*' -name libnode.so | head -1)
+          INC=$(find /tmp/nm/x -type f -name node.h | head -1)
+          echo "libnode: $SO / header: $INC"
+          L=android/app/libnode; mkdir -p $L/include
+          cp -r "$(dirname "$(dirname "$SO")")" $L/bin
+          cp -r "$(dirname "$INC")" $L/include/node
+          ls $L/bin
+      - name: Gói máy chủ MSAO vào app
+        run: |
+          A=android/app/src/main/assets/nodejs-project; mkdir -p $A
+          cp server.js du-lieu-mau.js android/nodejs-project/android-main.js $A/ && cp -r public $A/
+          for f in qrcode-generator/qrcode.js xlsx/dist/xlsx.full.min.js exceljs/dist/exceljs.min.js; do
+            mkdir -p "$A/node_modules/$(dirname $f)" && cp "node_modules/$f" "$A/node_modules/$f"; done
+          echo '{"name":"msao-android","private":true}' > $A/package.json
+      - run: gradle -p android assembleRelease --stacktrace
+      - run: cp android/app/build/outputs/apk/release/app-release.apk MSAO-1.1.0-android.apk
+      - uses: actions/upload-artifact@v4
+        with: { name: android, path: MSAO-1.1.0-android.apk, if-no-files-found: error }
+
+  phat-hanh:
+    needs: [windows, mac, android]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with: { path: out, merge-multiple: true }
+      - name: Đưa bộ cài lên mục Releases
+        env: { GH_TOKEN: '${{ github.token }}', GH_REPO: '${{ github.repository }}' }
+        run: |
+          ls -la out
+          gh release delete ban-moi-nhat --yes --cleanup-tag || true
+          gh release create ban-moi-nhat out/* --target "${{ github.sha }}" --title "MSAO bản mới nhất" \
+            --notes "Windows: MSAO-Setup-*.exe · macOS: MSAO-*-mac-arm64.dmg (chip Apple M) hoặc mac-x64.dmg (chip Intel) · Android/POS Android: MSAO-*-android.apk"

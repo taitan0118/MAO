@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MSAO</title>
+<style>
+:root{--blue:#2563EB;--navy:#0F172A;--sky:#38BDF8;--bg:#F8FAFC;--line:#E2E8F0;--muted:#475569}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--navy);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px;line-height:1.5}
+.top{background:linear-gradient(120deg,#1D4ED8,var(--blue) 60%,#0EA5E9);color:#fff;padding:20px 16px;display:flex;align-items:center;gap:12px}
+.top b{font-size:20px;display:block}.top small{opacity:.85}
+.wrap{max-width:560px;margin:0 auto;padding:16px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px}
+h2{font-size:17px;margin:0 0 6px}
+p{margin:0 0 12px;color:var(--muted);font-size:15px}
+button{font:inherit;font-weight:600;border:0;border-radius:12px;min-height:48px;width:100%;cursor:pointer;color:#fff;background:var(--blue)}
+button.ghost{background:#fff;color:var(--blue);border:1px solid #BFDBFE}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+input{font:inherit;width:100%;min-height:48px;border:1px solid #CBD5E1;border-radius:12px;padding:0 14px;margin-bottom:10px}
+label{display:block;font-size:14px;color:var(--muted);margin-bottom:4px}
+.err{color:#B91C1C;font-size:14px;min-height:20px;margin:-4px 0 8px}
+.hint{font-size:13px;color:var(--muted);margin-top:10px}
+.spin{width:40px;height:40px;border-radius:50%;border:4px solid #DBEAFE;border-top-color:var(--blue);margin:32px auto 12px;animation:r 1s linear infinite}
+@keyframes r{to{transform:rotate(360deg)}}
+.hidden{display:none}
+.center{text-align:center}
+</style></head><body>
+<div class="top">
+  <svg width="36" height="36" viewBox="0 0 114 114" aria-hidden="true"><g fill="#fff"><rect x="0" y="0" width="18" height="18" rx="5"/><rect x="0" y="24" width="18" height="18" rx="5"/><rect x="0" y="48" width="18" height="18" rx="5"/><rect x="0" y="72" width="18" height="18" rx="5"/><rect x="0" y="96" width="18" height="18" rx="5"/><rect x="24" y="24" width="18" height="18" rx="5"/><rect x="48" y="48" width="18" height="18" rx="5"/><rect x="72" y="24" width="18" height="18" rx="5"/><rect x="96" y="24" width="18" height="18" rx="5"/><rect x="96" y="48" width="18" height="18" rx="5"/><rect x="96" y="72" width="18" height="18" rx="5"/><rect x="96" y="96" width="18" height="18" rx="5"/></g><circle cx="105" cy="9" r="9" fill="#0F172A"/></svg>
+  <div><b>MSAO</b><small>Gọi món bằng mã QR</small></div>
+</div>
+<div class="wrap">
+
+  <div id="starting" class="hidden center">
+    <div class="spin"></div>
+    <h2>Đang khởi động máy chủ MSAO…</h2>
+    <p>Lần đầu mất khoảng 10–30 giây.</p>
+  </div>
+
+  <div id="error" class="hidden">
+    <div class="card">
+      <h2>Không kết nối được máy chủ</h2>
+      <p id="errText"></p>
+      <div class="row"><button onclick="msaoDesktop.retry()">Thử lại</button><button class="ghost" onclick="msaoDesktop.reset()">Đổi chế độ</button></div>
+    </div>
+  </div>
+
+  <div id="choose" class="hidden">
+    <p style="margin:4px 0 14px">Chọn cách dùng máy này. Có thể đổi lại sau trong menu ⋮.</p>
+    <div class="card">
+      <h2>Máy này là máy chính của quán</h2>
+      <p>Dành cho máy POS Android đặt ở quầy. MSAO chạy ngay trên máy này, quán không cần máy tính. Máy phải luôn bật và bắt WiFi của quán.</p>
+      <button onclick="msaoDesktop.chooseServer()">Dùng làm máy chính</button>
+    </div>
+    <div class="card">
+      <h2>Kết nối máy chính có sẵn</h2>
+      <p>Dành cho chủ quán, nhân viên, hoặc máy quầy thứ hai. Máy chính là máy tính hoặc máy POS đang chạy MSAO trong quán.</p>
+      <label for="addr">Địa chỉ máy chính</label>
+      <input id="addr" inputmode="url" autocomplete="off" placeholder="Ví dụ 192.168.1.10">
+      <div class="err" id="addrErr"></div>
+      <div class="row"><button onclick="go('/nhanvien')">Máy quầy</button><button class="ghost" onclick="go('/chuquan')">Chủ quán</button></div>
+      <div class="hint">Xem địa chỉ trên máy chính: máy tính chọn <b>Trợ giúp → Địa chỉ cho điện thoại, máy khác</b>; máy POS chọn menu <b>⋮ → Địa chỉ cho máy khác</b>. Chủ quán ở xa thì bật Tailscale và nhập địa chỉ 100.x.y.z.</div>
+    </div>
+  </div>
+</div>
+<script>
+var q=new URLSearchParams(location.search);
+function show(id){document.getElementById(id).classList.remove("hidden")}
+if(q.has("dang-mo")) show("starting");
+else if(q.has("loi")){
+  var l=q.get("loi");
+  document.getElementById("errText").textContent=l==="may-chu"
+    ?"Máy chủ trên máy này chưa khởi động được. Thử lại, hoặc khởi động lại máy."
+    :"Không mở được "+(l||"máy chủ")+". Kiểm tra máy này đang bắt WiFi của quán và máy chính đang bật MSAO.";
+  show("error");
+} else {
+  show("choose");
+  try{document.getElementById("addr").value=(msaoDesktop.savedAddress()||"").replace(/^https?:\/\//,"")}catch(e){}
+}
+function go(page){
+  var a=document.getElementById("addr").value.trim();
+  if(!/^(https?:\/\/)?[\w.-]+(:\d+)?\/?$/.test(a)){document.getElementById("addrErr").textContent="Nhập địa chỉ dạng 192.168.1.10";return}
+  document.getElementById("addrErr").textContent="";msaoDesktop.connect(a,page);
+}
+</script>
+</body></html>

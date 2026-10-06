@@ -1,0 +1,77 @@
+{
+  "name": "msao",
+  "productName": "MSAO",
+  "version": "1.1.0",
+  "description": "MSAO - phần mềm gọi món bằng mã QR cho quán ăn",
+  "author": "MSAO",
+  "private": true,
+  "main": "desktop/main.js",
+  "scripts": {
+    "start": "node server.js",
+    "mau": "node server.js --mau",
+    "test": "node test.js",
+    "app": "electron .",
+    "bo-cai": "electron-builder --win nsis --x64",
+    "bo-cai-mac": "electron-builder --mac dmg --x64 --arm64"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "dependencies": {
+    "exceljs": "^4.4.0",
+    "qrcode-generator": "^1.4.4",
+    "xlsx": "^0.18.5"
+  },
+  "devDependencies": {
+    "electron": ">=37.0.0",
+    "electron-builder": ">=26.0.0"
+  },
+  "build": {
+    "appId": "vn.msao.app",
+    "productName": "MSAO",
+    "copyright": "MSAO · Missing App Order",
+    "files": [
+      "server.js",
+      "du-lieu-mau.js",
+      "public/**",
+      "desktop/**",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "HUONG-DAN.pdf",
+        "to": "HUONG-DAN.pdf"
+      }
+    ],
+    "directories": {
+      "buildResources": "build",
+      "output": "dist"
+    },
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "MSAO",
+      "runAfterFinish": true,
+      "deleteAppDataOnUninstall": false,
+      "artifactName": "MSAO-Setup-${version}.exe"
+    },
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.business",
+      "icon": "build/icon.png",
+      "identity": "-",
+      "extendInfo": {
+        "NSLocalNetworkUsageDescription": "MSAO nhận đơn từ điện thoại của khách và nhân viên trong WiFi quán."
+      }
+    },
+    "dmg": {
+      "artifactName": "MSAO-${version}-mac-${arch}.dmg"
+    }
+  }
+}
