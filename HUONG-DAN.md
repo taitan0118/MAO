@@ -152,3 +152,7 @@ tao-bo-cai.bat     Tạo MAO.exe
 - Đổi cổng: `set PORT=8080` trước `node server.js`.
 - Thư viện chỉ dùng ở trình duyệt (QR, Excel) được cài bằng `npm install` và phục vụ tại `/vendor/`, nên quán không cần Internet khi bán hàng.
 - Giới hạn đã biết: dữ liệu là một file JSON ghi lại toàn bộ mỗi lần thay đổi, phù hợp một quán trong nhiều năm; nếu file vượt vài chục MB nên chuyển sang SQLite.
+
+## Thông tin thiết bị
+
+Chủ quán vào **Cài đặt**, kéo xuống cuối: mã thiết bị, tên máy, IP, phiên bản, hệ điều hành, dung lượng trống, lần cập nhật dữ liệu cuối, lần sao lưu gần nhất, số máy đang kết nối. Có nút **Sao chép** và **Tải về (.txt)** để gửi cho người hỗ trợ.
