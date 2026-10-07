@@ -907,6 +907,7 @@ function renderOwner(){
   document.getElementById("oTabs").innerHTML=tabs.map(function(t){return '<button class="chip '+(oTabV===t[0]?'on':'')+'" onclick="oTab(\''+t[0]+'\')">'+t[1]+'</button>'}).join("");
   var f={tong:ownerOverview,doanhthu:ownerRevenue,hoadon:ownerInvoices,menu:ownerMenu,ban:ownerTables,nv:ownerStaff,caidat:ownerSettings};
   document.getElementById("oBody").innerHTML=f[oTabV]();
+  if(oTabV==="caidat")devLoad();
 }
 function ownerOverview(){
   var now=new Date(), busy=tableList.filter(function(t){return openOf(t).length});
@@ -1169,8 +1170,32 @@ function ownerSettings(){
     '<div class="field"><label>Ngân hàng nhận tiền</label><select id="sBank">'+bankOptions(bank.bank)+'</select></div>'+
     '<div class="field"><label>Số tài khoản</label><input id="setAcc" inputmode="numeric" maxlength="20" value="'+esc(bank.acc)+'"><div class="err" id="setAcc_m"></div></div>'+
     '<div class="field"><label>Chủ tài khoản</label><input id="sHolder" maxlength="40" value="'+esc(bank.holder)+'"></div>'+
-    '<button class="btn acc block" onclick="saveSettings()">Lưu thông tin</button></div>';
+    '<button class="btn acc block" onclick="saveSettings()">Lưu thông tin</button></div>'+
+    '<div class="card"><h4 style="margin-top:0">Thông tin thiết bị</h4><div id="devInfo" class="muted" style="font-size:14px">Đang tải…</div>'+
+    '<div class="row" style="margin-top:10px;gap:8px"><button class="btn block" onclick="devCopy()">Sao chép</button><button class="btn block" onclick="devSave()">Tải về (.txt)</button></div></div>';
 }
+var devText="";
+function devLines(d){
+  var n=function(v,u){return v==null?"không rõ":v+u},fm=function(iso){if(!iso)return "chưa có";var x=new Date(iso),p=function(k){return String(k).padStart(2,"0")};return p(x.getDate())+"-"+p(x.getMonth()+1)+"-"+x.getFullYear()+" "+p(x.getHours())+":"+p(x.getMinutes())+":"+p(x.getSeconds())};
+  var up=d.uptimeMin>=60?Math.floor(d.uptimeMin/60)+" giờ "+d.uptimeMin%60+" phút":d.uptimeMin+" phút";
+  return [["Mã thiết bị",d.id],["Tên thiết bị",d.name||"không rõ"],["IP Local",d.ip+":"+d.port],["Thời gian",fm(d.time)+" - GMT"+(d.tz>=0?"+":"-")+String(Math.floor(Math.abs(d.tz)/60)).padStart(2,"0")+":"+String(Math.abs(d.tz)%60).padStart(2,"0")],
+    ["Phiên bản MAO",d.version||"không rõ"],["Hệ điều hành",d.os+" · Node "+d.node],["Dung lượng trống",d.freeMB==null?"không rõ":(d.freeMB/1024).toFixed(2)+" GB / "+(d.totalMB/1024).toFixed(2)+" GB"],
+    ["Dữ liệu quán",d.dataMB+" MB"],["Cập nhật dữ liệu lần cuối",fm(d.lastData)],["Sao lưu gần nhất",d.lastBackup||"chưa có"],["Máy đang kết nối",String(d.connected)],["Đã chạy liên tục",up]];
+}
+async function devLoad(){
+  var el=document.getElementById("devInfo");if(!el)return;
+  try{var r=await fetch("/api/device");var d=await r.json();if(!r.ok)throw new Error(d.error);
+    var L=devLines(d);devText="THÔNG TIN THIẾT BỊ - MAO\n"+L.map(function(x){return x[0]+": "+x[1]}).join("\n");
+    el.innerHTML=L.map(function(x){return '<div style="display:flex;justify-content:space-between;gap:12px;padding:5px 0;border-bottom:1px solid #E2E8F0"><span>'+esc(x[0])+'</span><b style="color:#0F172A;text-align:right;word-break:break-all">'+esc(x[1])+'</b></div>'}).join("");
+  }catch(e){el.textContent="Không tải được thông tin thiết bị"}
+}
+function devCopy(){
+  if(!devText)return;
+  var ok=function(){toast("Đã sao chép","ok")};
+  if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(devText).then(ok,function(){toast("Không sao chép được","bad")});
+  else{var t=document.createElement("textarea");t.value=devText;document.body.appendChild(t);t.select();try{document.execCommand("copy");ok()}catch(e){toast("Không sao chép được","bad")}t.remove()}
+}
+function devSave(){if(devText)saveFile("MAO-thong-tin-thiet-bi.txt",new TextEncoder().encode(devText))}
 // Sau khi khách thanh toán: xóa phiên gọi món của bàn (giỏ hàng, tên, ghi chú, trạng thái tab)
 
 // ================== Làm việc với máy chủ của quán ==================

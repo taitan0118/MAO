@@ -186,7 +186,7 @@ public class MainActivity extends Activity {
                 if (Build.VERSION.SDK_INT >= 29) {
                     ContentValues v = new ContentValues();
                     v.put(MediaStore.Downloads.DISPLAY_NAME, safe);
-                    v.put(MediaStore.Downloads.MIME_TYPE, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+                    v.put(MediaStore.Downloads.MIME_TYPE, safe.endsWith(".txt") ? "text/plain" : "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
                     Uri uri = getContentResolver().insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, v);
                     try (OutputStream out = getContentResolver().openOutputStream(uri)) { out.write(bytes); }
                     where = "thư mục Tải xuống (Download)";

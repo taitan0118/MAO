@@ -86,6 +86,21 @@ function lanUrl() {
   return 'http://' + ip + ':' + PORT;
 }
 
+// Thông tin máy chủ cho chủ quán xem/xuất (mục Cài đặt → Thông tin thiết bị)
+const VERSION = (() => { try { return require('./package.json').version || ''; } catch { return ''; } })();
+const ID_FILE = path.join(DATA, 'may.id');
+if (!fs.existsSync(ID_FILE)) fs.writeFileSync(ID_FILE, crypto.randomBytes(9).toString('base64').replace(/[^A-Za-z0-9]/g, '').toUpperCase().padEnd(12, 'X').slice(0, 12));
+function deviceInfo() {
+  const t = f => { try { return f(); } catch { return null; } };
+  const st = t(() => fs.statfsSync(DATA)), mb = n => Math.round(n / 1048576);
+  const bak = t(() => fs.readdirSync(BAK_DIR).filter(f => f.startsWith('gio-')).sort().pop());
+  return { id: fs.readFileSync(ID_FILE, 'utf8').trim(), name: t(() => os.hostname()) || '', ip: lanUrl().replace(/^http:\/\//, '').replace(/:\d+$/, ''), port: PORT,
+    time: new Date().toISOString(), tz: -new Date().getTimezoneOffset(), version: VERSION, os: process.platform + ' ' + (t(() => os.release()) || ''), node: process.version,
+    freeMB: st ? mb(st.bavail * st.bsize) : null, totalMB: st ? mb(st.blocks * st.bsize) : null, dataMB: +((t(() => fs.statSync(DB_FILE).size) || 0) / 1048576).toFixed(2),
+    lastData: t(() => fs.statSync(DB_FILE).mtime.toISOString()), lastBackup: bak ? bak.slice(4, 14) + ' ' + bak.slice(15, 17) + 'h' : null,
+    uptimeMin: Math.round(process.uptime() / 60), connected: clients.size, ver: db.ver };
+}
+
 // Chặn dò mật khẩu và gửi đơn dồn dập theo từng địa chỉ máy
 const hits = new Map();
 function limit(key, max, ms) {
@@ -456,6 +471,10 @@ const server = http.createServer(async (req, res) => {
       res.write('data: ' + db.ver + '\n\n'); clients.add(res);
       const hb = setInterval(() => res.write(': hb\n\n'), 25e3);
       return req.on('close', () => { clearInterval(hb); clients.delete(res); });
+    }
+    if (p === '/api/device') {
+      if (!getUser(req, 'owner')) throw new E('Chỉ chủ quán xem được', 401);
+      return json(res, 200, deviceInfo());
     }
     if (p === '/api/state') {
       const as = url.searchParams.get('as');

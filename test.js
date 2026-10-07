@@ -80,6 +80,11 @@ server.listen(0, '127.0.0.1', async () => {
     assert.ok((await call('owner-recover', { phone: '0900000001', code: setup.recovery, pw: 'moi123' })).ok);
     assert.ok((await call('owner-login', { phone: '0900000001', pw: 'moi123' }, 'owner')).ok);
 
+    // thông tin thiết bị: chỉ chủ quán xem được
+    assert.equal((await fetch(base + '/api/device')).status, 401, 'chưa đăng nhập không xem được thông tin máy');
+    const dev = await (await fetch(base + '/api/device', { headers: { Cookie: jar.owner } })).json();
+    assert.ok(/^[A-Z0-9]{12}$/.test(dev.id) && dev.ip && dev.version && dev.freeMB > 0 && dev.lastData, 'thông tin thiết bị đủ trường');
+
     // logo quán: lưu thành file ảnh, ai cũng thấy (để in hóa đơn), bỏ được
     const png = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg==';
     assert.ok((await call('settings', { name: 'Quán Test', bank: 'Vietcombank', acc: '0123456789', logo: png }, 'owner')).ok);
