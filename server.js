@@ -7,6 +7,7 @@ const http = require('http'), fs = require('fs'), path = require('path'), crypto
 const PORT = +process.env.PORT || 3000;
 const ROOT = __dirname;
 const DATA = process.env.DATA_DIR || path.join(ROOT, 'data');
+const KM = require('./khuyenmai');
 const DB_FILE = path.join(DATA, 'quan.json'), IMG_DIR = path.join(DATA, 'anh'), BAK_DIR = path.join(DATA, 'saoluu');
 for (const d of [DATA, IMG_DIR, BAK_DIR]) fs.mkdirSync(d, { recursive: true });
 
@@ -16,11 +17,14 @@ for (const d of [DATA, IMG_DIR, BAK_DIR]) fs.mkdirSync(d, { recursive: true });
 function emptyDb() {
   return { ver: 1, shop: { name: '', addr: '', phone: '', bank: 'Vietcombank', acc: '', holder: '' },
     owners: [], staff: [], groups: ['Món chính', 'Đồ uống'], menu: [], tables: ['01', '02', '03', '04', '05'],
-    orders: [], invoices: [], payReq: {}, seq: { order: 100, inv: 1000, menu: 0, staff: 0, owner: 0 }, sessions: {}, codes: {} };
+    orders: [], invoices: [], payReq: {}, seq: { order: 100, inv: 1000, menu: 0, staff: 0, owner: 0, promo: 0 }, sessions: {}, codes: {},
+    promos: [], stamps: {}, promoCfg: { holiday: false, manualMax: 10 } };
 }
 let db;
 if (fs.existsSync(DB_FILE)) db = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
 else { db = emptyDb(); if (process.argv.includes('--mau')) require('./du-lieu-mau')(db, hashPw); save(); }
+for (const [k, v] of Object.entries(emptyDb())) if (db[k] === undefined) db[k] = v; // bản dữ liệu cũ chưa có khuyến mãi
+db.seq.promo = db.seq.promo || 0;
 for (const [t, x] of Object.entries(db.sessions)) if (x.exp < Date.now()) delete db.sessions[t]; // dọn phiên đã hết hạn
 
 function save() { // ghi file tạm, ép xuống đĩa rồi mới đổi tên: mất điện giữa chừng không hỏng dữ liệu
@@ -125,6 +129,25 @@ function flat(orders) {
   for (const o of orders) for (const l of o.lines) { const k = l.name + '|' + l.price; const x = m.get(k) || { name: l.name, price: l.price, q: 0 }; x.q += l.q; m.set(k, x); }
   return [...m.values()];
 }
+// ---------- Khuyến mãi ----------
+const MANUAL_REASONS = ['Khách quen', 'Món ra chậm', 'Món lỗi / đổi món', 'Chủ quán duyệt'];
+const kmCtx = () => ({ promos: db.promos, menu: db.menu, cfg: db.promoCfg, stamps: db.stamps });
+const firstTime = list => Math.min(...list.map(o => Date.parse(o.time) || Date.now())); // chốt khung giờ theo giờ đặt món đầu tiên của bàn
+function payQuote(list, b) { // tính tiền một bàn (các đơn đã phục vụ) kèm mã, SĐT, giảm thủ công do nhân viên nhập
+  const code = str(b.code, 20).toUpperCase(), phone = str(b.phone, 10);
+  need(!phone || PHONE_RE.test(phone), 'Số điện thoại gồm 10 chữ số, bắt đầu bằng 0');
+  let manual = null;
+  if (b.manual && b.manual.pct) {
+    const pct = Number(b.manual.pct), max = db.promoCfg.manualMax;
+    need(MANUAL_REASONS.includes(b.manual.reason), 'Chọn lý do giảm giá');
+    need(Number.isInteger(pct) && pct >= 1 && pct <= max, 'Nhân viên chỉ được giảm tối đa ' + max + '%');
+    manual = { pct, reason: b.manual.reason };
+  }
+  return KM.quote(kmCtx(), flat(list), { at: firstTime(list), code, phone, manual });
+}
+function invPromo(R, extra) { // phần khuyến mãi lưu trên hóa đơn
+  return Object.assign({ sub: R.sub, disc: R.disc, promos: R.applied.map(a => ({ name: a.name, v: a.v })), gifts: R.gifts, itemDisc: R.itemDisc, capAdj: R.adj }, extra);
+}
 function diffItems(a, b) {
   const out = [], names = uniq(a.concat(b).map(l => l.name)), sum = (arr, n) => arr.filter(l => l.name === n).reduce((s, l) => s + l.q, 0);
   for (const n of names) { const qa = sum(a, n), qb = sum(b, n); if (qa === qb) continue;
@@ -170,19 +193,23 @@ function stateFor(as, ctx, q) {
     const codeOf = id => Object.values(db.codes).find(c => c.staffId === id && c.exp > Date.now());
     return Object.assign(base, { me: { name: me.name, phone: me.phone, role: 'owner' }, hasOwner: true,
       shop: db.shop, tables: db.tables, orders: db.orders, invoices: db.invoices, payReq: db.payReq,
-      staff: db.staff.map(s => ({ id: s.id, name: s.name, phone: s.phone, role: s.role, active: s.active, codeExp: (codeOf(s.id) || {}).exp || 0 })) });
+      staff: db.staff.map(s => ({ id: s.id, name: s.name, phone: s.phone, role: s.role, active: s.active, codeExp: (codeOf(s.id) || {}).exp || 0 })),
+      promos: db.promos, promoCfg: db.promoCfg, manualReasons: MANUAL_REASONS });
   }
   if (as === 'staff') {
     const me = getUser(ctx.req, 'staff');
     if (!me) return Object.assign(base, { me: null });
     const st = Object.assign(base, { me: { id: me.id, name: me.name, role: me.role }, shop: db.shop, tables: db.tables,
-      orders: db.orders.filter(isOpen), payReq: db.payReq });
+      orders: db.orders.filter(isOpen), payReq: db.payReq, promoCfg: db.promoCfg, manualReasons: MANUAL_REASONS });
     if (me.role === 'quay') { st.invoices = db.invoices; st.staff = db.staff.map(s => ({ id: s.id, name: s.name, role: s.role, active: s.active })); }
     return st;
   }
   const t = str(q.get('ban'), 6).toUpperCase(); // khách: chỉ thấy thực đơn và đơn của bàn mình
-  return Object.assign(base, { table: db.tables.includes(t) ? t : null, tables: [t],
-    orders: db.orders.filter(o => o.table === t && o.status !== 'tra'), payReq: { [t]: !!db.payReq[t] } });
+  const mine = db.orders.filter(o => o.table === t && o.status !== 'tra'), live = mine.filter(isOpen);
+  let quote = null; // ưu đãi tự áp cho bàn (chưa có mã, chưa có SĐT), khách chỉ xem
+  if (live.length && db.promos.some(p => p.on)) { const R = KM.quote(kmCtx(), flat(live), { at: firstTime(live) });
+    quote = { sub: R.sub, total: R.total, disc: R.disc, applied: R.applied.map(a => ({ name: a.name, v: a.v })), gifts: R.gifts, lines: R.lines, hint: R.hint, adj: R.adj }; }
+  return Object.assign(base, { table: db.tables.includes(t) ? t : null, tables: [t], orders: mine, payReq: { [t]: !!db.payReq[t] }, quote });
 }
 
 // ---------- Thao tác (who: ai được phép) ----------
@@ -270,12 +297,22 @@ act('set-status', 'staff', (b, c) => {
   else throw new E('Trạng thái không hợp lệ');
   o.status = to;
 });
+act('promo-quote', 'staff', (b, c) => { // xem trước tiền phải trả trước khi bấm thanh toán (không ghi gì)
+  limit('quote:' + c.ip, 90, 60e3);
+  const t = str(b.table, 6), list = db.orders.filter(o => o.table === t && o.status === 'xong');
+  need(list.length, 'Bàn chưa có món nào đã phục vụ');
+  return { quote: payQuote(list, b) };
+});
 act('pay', 'staff', (b, c) => {
   const t = str(b.table, 6), list = db.orders.filter(o => o.table === t && o.status === 'xong');
   need(list.length, 'Bàn chưa có món nào đã phục vụ');
-  const items = flat(list), names = k => uniq(list.map(o => o[k])).join(', ');
-  const inv = { no: 'HD' + (++db.seq.inv), table: t, time: new Date().toISOString(), items, total: tot(items),
-    paidBy: c.user.name, orderStaff: names('takenBy'), confirmStaff: names('confirmedBy'), servedStaff: names('servedBy'), prints: 0 };
+  const items = flat(list), names = k => uniq(list.map(o => o[k])), R = payQuote(list, b);
+  const inv = { no: 'HD' + (++db.seq.inv), table: t, time: new Date().toISOString(), items, total: R.total,
+    paidBy: c.user.name, orderStaff: names('takenBy').join(', '), confirmStaff: names('confirmedBy').join(', '), servedStaff: names('servedBy').join(', '), prints: 0 };
+  Object.assign(inv, invPromo(R, { code: (R.applied.find(a => a.code) || {}).code, phone: R.stamp ? R.stamp.phone : undefined, stampHave: R.stamp ? R.stamp.have : undefined,
+    manual: b.manual && R.manualV ? { pct: Number(b.manual.pct), reason: b.manual.reason, v: R.manualV, by: c.user.name } : undefined }));
+  R.applied.forEach(a => { const p = db.promos.find(x => x.id === a.id); if (p) p.used++; }); // chỉ tính lượt khi đơn đã thanh toán
+  if (R.stamp) { if (R.stamp.after > 0) db.stamps[R.stamp.phone] = R.stamp.after; else delete db.stamps[R.stamp.phone]; }
   db.invoices.push(inv);
   list.forEach(o => { o.status = 'tra'; });
   db.payReq[t] = false;
@@ -296,7 +333,10 @@ act('invoice-edit', 'quayOrOwner', (b, c) => {
   });
   const changes = diffItems(orig.items, items);
   need(changes.length, 'Chưa có thay đổi nào so với hóa đơn cũ');
-  const nv = Object.assign({}, orig, { no: 'HD' + (++db.seq.inv), items, total: tot(items), from: orig.no, note: reason, changes,
+  const R = KM.quote({ promos: db.promos, menu: db.menu, cfg: db.promoCfg, stamps: orig.phone && orig.stampHave != null ? { [orig.phone]: orig.stampHave } : {} }, items,
+    { at: Date.parse(orig.time), code: orig.code, phone: orig.phone, ignoreQuota: true, manual: orig.manual ? { pct: orig.manual.pct, reason: orig.manual.reason } : null }); // tính lại theo giờ lúc thanh toán, không đụng số lượt đã dùng
+  const nv = Object.assign({}, orig, invPromo(R, { manual: orig.manual ? Object.assign({}, orig.manual, { v: R.manualV }) : undefined }),
+    { no: 'HD' + (++db.seq.inv), items, total: R.total, from: orig.no, note: reason, changes,
     editedBy: c.user.name, editedAt: new Date().toISOString(), prints: 0, replacedBy: undefined });
   orig.replacedBy = nv.no;
   db.invoices.push(nv);
@@ -404,6 +444,21 @@ act('menu-import', 'owner', b => {
   }
   if (b.mode === 'replace') { db.menu.filter(m => !keep.includes(m)).forEach(m => saveImage('', m.img)); db.menu = keep; }
   return { count: keep.length };
+});
+
+// Chủ quán: khuyến mãi
+act('promo-save', 'owner', b => {
+  const old = b.id ? db.promos.find(x => x.id === Number(b.id)) : null;
+  need(!b.id || old, 'Không tìm thấy chương trình');
+  const p = KM.clean(Object.assign({}, b, { id: old ? old.id : 0 }), db, need, str);
+  if (old) { const id = old.id, used = old.used; for (const k of Object.keys(old)) delete old[k]; Object.assign(old, p, { id, used }); }
+  else db.promos.push(Object.assign({ id: ++db.seq.promo, used: 0 }, p));
+});
+act('promo-toggle', 'owner', b => { const p = db.promos.find(x => x.id === Number(b.id)); need(p, 'Không tìm thấy chương trình'); p.on = !p.on; });
+act('promo-del', 'owner', b => { need(db.promos.some(x => x.id === Number(b.id)), 'Không tìm thấy chương trình'); db.promos = db.promos.filter(x => x.id !== Number(b.id)); });
+act('promo-cfg', 'owner', b => {
+  const m = Number(b.manualMax); need(Number.isInteger(m) && m >= 0 && m <= 50, 'Mức giảm thủ công của nhân viên từ 0 đến 50%');
+  db.promoCfg = { holiday: !!b.holiday, manualMax: m };
 });
 
 // Chủ quán: bàn

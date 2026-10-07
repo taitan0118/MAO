@@ -16,7 +16,7 @@ jobs:
       - run: node test.js
       - name: Thử máy chủ bản Android
         run: |
-          mkdir -p /tmp/a && cp server.js du-lieu-mau.js android/nodejs-project/android-main.js /tmp/a/ && cp -r public /tmp/a/
+          mkdir -p /tmp/a && cp server.js khuyenmai.js du-lieu-mau.js android/nodejs-project/android-main.js /tmp/a/ && cp -r public /tmp/a/
           node /tmp/a/android-main.js /tmp/a/data 192.168.1.50 & sleep 2
           curl -fsS http://127.0.0.1:3000/api/state?as=guest | grep -q '192.168.1.50:3000'
           kill %1
@@ -73,10 +73,10 @@ jobs:
       - name: Gói máy chủ MAO vào app
         run: |
           A=android/app/src/main/assets/nodejs-project; mkdir -p $A
-          cp server.js du-lieu-mau.js android/nodejs-project/android-main.js $A/ && cp -r public $A/
+          cp server.js khuyenmai.js du-lieu-mau.js android/nodejs-project/android-main.js $A/ && cp -r public $A/
           for f in qrcode-generator/qrcode.js xlsx/dist/xlsx.full.min.js exceljs/dist/exceljs.min.js; do
             mkdir -p "$A/node_modules/$(dirname $f)" && cp "node_modules/$f" "$A/node_modules/$f"; done
-          echo '{"name":"mao-android","version":"1.1.0","private":true}' > $A/package.json
+          echo '{"name":"mao-android","version":"1.2.0","private":true}' > $A/package.json
       - run: gradle -p android assembleRelease --stacktrace
       - run: cp android/app/build/outputs/apk/release/app-release.apk MAO.apk
       - uses: actions/upload-artifact@v4

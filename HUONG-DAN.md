@@ -156,3 +156,15 @@ tao-bo-cai.bat     Tạo MAO.exe
 ## Thông tin thiết bị
 
 Chủ quán vào **Cài đặt**, kéo xuống cuối: mã thiết bị, tên máy, IP, phiên bản, hệ điều hành, dung lượng trống, lần cập nhật dữ liệu cuối, lần sao lưu gần nhất, số máy đang kết nối. Có nút **Sao chép** và **Tải về (.txt)** để gửi cho người hỗ trợ.
+
+## Khuyến mãi
+
+Chỉ **chủ quán** tạo, sửa, tắt, xóa chương trình ở tab **Khuyến mãi**. Nhân viên không sửa được; khuyến mãi tự áp khi thanh toán và hiện trên điện thoại của khách.
+
+- **Loại chương trình:** giảm % hoặc đồng giá theo món/danh mục (happy hour), mua X tính Y, mua A tặng hoặc giảm B, món thứ N giảm %, combo giá cố định, tặng món / giảm % / giảm tiền khi bill đạt mức, mã giảm giá, thẻ tích ly theo số điện thoại.
+- **Giới hạn:** ngày trong tuần, khung giờ (theo giờ khách đặt món đầu tiên của bàn, giờ Việt Nam), "chỉ N đơn đầu", ngày hết hạn. Chỉ đơn đã thanh toán mới bị trừ lượt.
+- **Khi trùng nhau:** thẻ tích ly lấy ly miễn phí trước; mỗi món chỉ nhận một chương trình giá món; hóa đơn chỉ chọn một chương trình lợi nhất; mã giảm giá so với kết quả đó rồi lấy cái lợi hơn (trừ mã bật cộng dồn); giảm thủ công của nhân viên tính cuối.
+- **Trần 50%:** theo Thông tư 39/2025/TT-BCT, tổng giảm không quá 50% giá gốc, trừ dịp Tết/lễ (chủ quán tick "Đang dịp Tết/lễ" ở Quy định chung). Ly đổi bằng thẻ tích ly không tính vào trần. Thuế GTGT trên hàng khuyến mại nên hỏi kế toán.
+- **Nhân viên khi thu tiền:** nhập mã giảm giá, SĐT khách (tích ly) và giảm thủ công (chọn lý do, tối đa theo mức chủ quán đặt, mặc định 10%).
+- **Báo cáo:** cuối tab Khuyến mãi (hôm nay, tháng này, tất cả); Excel doanh thu có thêm cột Tạm tính và Khuyến mãi.
+- **Mã nguồn:** `khuyenmai.js` (phần tính, không phụ thuộc gói ngoài), `server.js` (các thao tác `promo-*`, `pay`, `invoice-edit`), `public/index.html` (tab Khuyến mãi, màn thanh toán, hóa đơn).

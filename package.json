@@ -1,7 +1,7 @@
 {
   "name": "mao",
   "productName": "MAO",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "MAO - phần mềm gọi món bằng mã QR cho quán ăn",
   "author": "MAO",
   "private": true,
@@ -32,6 +32,7 @@
     "copyright": "MAO · Missing App Order",
     "files": [
       "server.js",
+      "khuyenmai.js",
       "du-lieu-mau.js",
       "public/**",
       "desktop/**",
