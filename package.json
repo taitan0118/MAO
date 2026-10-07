@@ -3,7 +3,8 @@
   "productName": "MAO",
   "version": "1.2.0",
   "description": "MAO - phần mềm gọi món bằng mã QR cho quán ăn",
-  "author": "MAO",
+  "author": "Nguyễn Tấn Tài (Missing)",
+  "license": "SEE LICENSE IN LICENSE",
   "private": true,
   "main": "desktop/main.js",
   "scripts": {
@@ -29,19 +30,24 @@
   "build": {
     "appId": "vn.mao.app",
     "productName": "MAO",
-    "copyright": "MAO · Missing App Order",
+    "copyright": "© 2026 Nguyễn Tấn Tài (Missing). Xem file LICENSE.",
     "files": [
       "server.js",
       "khuyenmai.js",
       "du-lieu-mau.js",
       "public/**",
       "desktop/**",
-      "package.json"
+      "package.json",
+      "LICENSE"
     ],
     "extraResources": [
       {
         "from": "HUONG-DAN.pdf",
         "to": "HUONG-DAN.pdf"
+      },
+      {
+        "from": "LICENSE",
+        "to": "LICENSE.txt"
       }
     ],
     "directories": {
