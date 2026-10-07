@@ -7,3 +7,10 @@ android/app/.cxx/
 android/app/libnode/
 android/app/src/main/assets/nodejs-project/
 tools/
+
+ios/Frameworks/
+ios/MAO/nodejs-project/
+ios/MAO.xcodeproj/
+ios/MAO/Info.plist
+ios/chon.html
+ios/build/

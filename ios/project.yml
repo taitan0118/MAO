@@ -1,0 +1,33 @@
+# Dựng dự án Xcode bằng XcodeGen (chạy trên máy chủ GitHub, xem .github/workflows/bo-cai.yml)
+name: MAO
+options: { bundleIdPrefix: vn.mao, deploymentTarget: { iOS: "15.0" } }
+targets:
+  MAO:
+    type: application
+    platform: iOS
+    sources:
+      - { path: MAO, excludes: ["nodejs-project"] }
+      - { path: MAO/nodejs-project, type: folder }
+      - { path: chon.html, buildPhase: resources }
+    dependencies:
+      - { framework: Frameworks/NodeMobile.xcframework, embed: true, codeSign: true }
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: vn.mao.app
+        PRODUCT_NAME: MAO
+        MARKETING_VERSION: "1.1.0"
+        CURRENT_PROJECT_VERSION: "1"
+        TARGETED_DEVICE_FAMILY: "1,2"
+        SWIFT_OBJC_BRIDGING_HEADER: MAO/Bridging-Header.h
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        INFOPLIST_FILE: MAO/Info.plist
+    info:
+      path: MAO/Info.plist
+      properties:
+        CFBundleDisplayName: MAO
+        UILaunchScreen: {}
+        UISupportedInterfaceOrientations: [UIInterfaceOrientationPortrait, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight, UIInterfaceOrientationPortraitUpsideDown]
+        UISupportedInterfaceOrientations~ipad: [UIInterfaceOrientationPortrait, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight, UIInterfaceOrientationPortraitUpsideDown]
+        ITSAppUsesNonExemptEncryption: false
+        NSLocalNetworkUsageDescription: "MAO cần mạng WiFi của quán để khách và nhân viên kết nối vào máy này."
+        NSAppTransportSecurity: { NSAllowsArbitraryLoads: true }

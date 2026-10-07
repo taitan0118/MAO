@@ -47,7 +47,7 @@ label{display:block;font-size:14px;color:var(--muted);margin-bottom:4px}
     <p style="margin:4px 0 14px">Chọn cách dùng máy này. Có thể đổi lại sau trong menu ⋮.</p>
     <div class="card">
       <h2>Máy này là máy chính của quán</h2>
-      <p>Dành cho máy POS Android đặt ở quầy. MAO chạy ngay trên máy này, quán không cần máy tính. Máy phải luôn bật và bắt WiFi của quán.</p>
+      <p>Dành cho máy POS Android hoặc iPad đặt ở quầy. MAO chạy ngay trên máy này, quán không cần máy tính. Máy phải luôn bật, bắt WiFi của quán (iPad: để MAO luôn mở trên màn hình).</p>
       <button onclick="maoDesktop.chooseServer()">Dùng làm máy chính</button>
     </div>
     <div class="card">
@@ -57,7 +57,7 @@ label{display:block;font-size:14px;color:var(--muted);margin-bottom:4px}
       <input id="addr" inputmode="url" autocomplete="off" placeholder="Ví dụ 192.168.1.10">
       <div class="err" id="addrErr"></div>
       <div class="row"><button onclick="go('/nhanvien')">Máy quầy</button><button class="ghost" onclick="go('/chuquan')">Chủ quán</button></div>
-      <div class="hint">Xem địa chỉ trên máy chính: máy tính chọn <b>Trợ giúp → Địa chỉ cho điện thoại, máy khác</b>; máy POS chọn menu <b>⋮ → Địa chỉ cho máy khác</b>. Chủ quán ở xa thì bật Tailscale và nhập địa chỉ 100.x.y.z.</div>
+      <div class="hint">Xem địa chỉ trên máy chính: máy tính chọn <b>Trợ giúp → Địa chỉ cho điện thoại, máy khác</b>; máy POS, iPad chọn menu <b>⋮ → Địa chỉ cho máy khác</b>. Chủ quán ở xa thì bật Tailscale và nhập địa chỉ 100.x.y.z.</div>
     </div>
   </div>
 </div>
