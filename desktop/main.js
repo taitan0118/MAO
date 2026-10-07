@@ -11,7 +11,7 @@ process.env.DATA_DIR = process.env.DATA_DIR || path.join(app.getPath('documents'
 const MAC = process.platform === 'darwin';
 const ICON = path.join(__dirname, MAC ? 'icon.png' : 'icon.ico'); // Mac không đọc được .ico
 const GUIDE = app.isPackaged ? path.join(process.resourcesPath, 'HUONG-DAN.pdf') : path.join(__dirname, '..', 'HUONG-DAN.pdf');
-const CFG_FILE = path.join(app.getPath('userData'), 'msao-desktop.json');
+const CFG_FILE = path.join(app.getPath('userData'), 'mao-desktop.json');
 let cfg = {};
 try { cfg = JSON.parse(fs.readFileSync(CFG_FILE, 'utf8')); } catch {}
 const saveCfg = () => { fs.mkdirSync(path.dirname(CFG_FILE), { recursive: true }); fs.writeFileSync(CFG_FILE, JSON.stringify(cfg)); };
@@ -82,7 +82,7 @@ app.on('before-quit', () => { quitting = true; });
 app.on('window-all-closed', () => {}); // không tự thoát: máy chủ phải chạy tiếp
 
 app.whenReady().then(() => {
-  app.setAppUserModelId('vn.msao.app'); // để thông báo Windows hiện tên MAO
+  app.setAppUserModelId('vn.mao.app'); // để thông báo Windows hiện tên MAO
   try { srv = require('../server.js'); } catch (e) {
     dialog.showErrorBox('MAO không mở được dữ liệu', String(e && e.message) + '\n\nThư mục dữ liệu: ' + process.env.DATA_DIR);
     return app.exit(1);

@@ -309,10 +309,10 @@ h4{color:#2563EB}
 #site-logo svg{display:block}
 #site-word{font-family:Manrope,system-ui,-apple-system,"Segoe UI",sans-serif;font-weight:800;font-size:22px;letter-spacing:-.02em;color:#fff;line-height:1}
 .brand-sep{width:1px;height:28px;background:rgba(255,255,255,.35);margin:0 4px;flex:none}
-.msao-tag{font-weight:800;font-size:12px;letter-spacing:.14em;color:#fff;background:rgba(15,23,42,.28);padding:5px 9px;border-radius:8px}
+.mao-tag{font-weight:800;font-size:12px;letter-spacing:.14em;color:#fff;background:rgba(15,23,42,.28);padding:5px 9px;border-radius:8px}
 .rcpt .rlogo{display:block;margin:0 auto 6px;max-width:60%;max-height:64px;filter:grayscale(1)}
-.rcpt .msao-foot{font-size:9px;margin-top:6px;color:#333}
-.tmsao{font-size:11px;color:#64748B;margin-top:10px;letter-spacing:.04em}
+.rcpt .mao-foot{font-size:9px;margin-top:6px;color:#333}
+.tmao{font-size:11px;color:#64748B;margin-top:10px;letter-spacing:.04em}
 </style>
 <script src="/vendor/qrcode.js"></script>
 <script src="/vendor/xlsx.js"></script>
@@ -416,7 +416,7 @@ function toast(msg,kind){var d=document.createElement("div");d.className="toast 
 var AC=null;function audio(){try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();if(AC.state==="suspended")AC.resume()}catch(e){}return AC}
 ["touchend","click"].forEach(function(t){document.addEventListener(t,audio,{once:true,passive:true})});
 function beep(){var c=audio();if(!c)return;try{var o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=880;g.gain.setValueAtTime(.18,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.35);o.start();o.stop(c.currentTime+.35)}catch(e){}}
-function notify(msg){toast(msg,"ok");beep();unseen++;updateBadges();if(window.msaoDesktop)msaoDesktop.notify(msg)}
+function notify(msg){toast(msg,"ok");beep();unseen++;updateBadges();if(window.maoDesktop)maoDesktop.notify(msg)}
 function updateBadges(){
   var n=orders.filter(function(o){return o.status==="cho"}).length;
   document.getElementById("sBadge").innerHTML=n?'<span class="dot">'+n+'</span>':'';
@@ -661,7 +661,7 @@ function receiptHtml(inv,withQr){
     '<div class="hr"></div>'+
     '<div class="c">Cảm ơn quý khách, hẹn gặp lại!</div>'+
     '<div class="c sm">Phiếu này không thay thế hóa đơn điện tử</div>'+
-    '<div class="c msao-foot">Gọi món bằng MAO</div>'+
+    '<div class="c mao-foot">Gọi món bằng MAO</div>'+
     '</div></div>';
 }
 function showInvoice(inv,qr){
@@ -672,7 +672,7 @@ function showInvoice(inv,qr){
 
 // ---------- CHỦ QUÁN ----------
 // ---------- Đăng nhập chủ quán ----------
-function isStandalone(){return !!window.msaoDesktop||window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true}
+function isStandalone(){return !!window.maoDesktop||window.matchMedia("(display-mode: standalone)").matches||navigator.standalone===true}
 function installCard(){
   var ios=/iphone|ipad|ipod/i.test(navigator.userAgent);
   var steps=ios?'Mở bằng Safari → bấm nút <b>Chia sẻ</b> (ô vuông có mũi tên) → chọn <b>Thêm vào MH chính</b> → <b>Thêm</b>.':'Mở bằng Chrome → bấm menu <b>⋮</b> → chọn <b>Thêm vào màn hình chính</b> hoặc <b>Cài đặt ứng dụng</b>.';
@@ -691,9 +691,9 @@ async function saveFile(filename,buf){
     catch(e){var c=e&&e.code;if(c==="declined")toast("Đã hủy tải file","warn");else if(c==="rate_limited")toast("Đang có một yêu cầu tải khác, thử lại sau giây lát","warn");else toast("Không tải được file ("+(c||"lỗi")+")","bad");}
     return;
   }
-  if(window.msaoDesktop&&msaoDesktop.saveFile){ // app Android: lưu vào thư mục Tải xuống của máy
+  if(window.maoDesktop&&maoDesktop.saveFile){ // app Android: lưu vào thư mục Tải xuống của máy
     var b=new Uint8Array(buf),bin="";for(var i=0;i<b.length;i+=32768)bin+=String.fromCharCode.apply(null,b.subarray(i,i+32768));
-    msaoDesktop.saveFile(filename,btoa(bin));return;
+    maoDesktop.saveFile(filename,btoa(bin));return;
   }
   try{
     var url=URL.createObjectURL(new Blob([buf],{type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"}));
@@ -1297,7 +1297,7 @@ async function doPay(){
   showInvoice(inv,true);
 }
 // Ứng dụng desktop: in thẳng ra máy in hóa đơn đã chọn; trình duyệt: hộp thoại in
-function markPrint(){if(lastPrinted)api("print-mark",{no:lastPrinted.no}).catch(function(){});if(window.msaoDesktop)msaoDesktop.printReceipt();else window.print()}
+function markPrint(){if(lastPrinted)api("print-mark",{no:lastPrinted.no}).catch(function(){});if(window.maoDesktop)maoDesktop.printReceipt();else window.print()}
 async function loginWithCode(raw){
   closeModal();
   var mm=String(raw||"").match(/nv=([A-Za-z0-9]{6})/i);
@@ -1447,7 +1447,7 @@ function applyImport(){
 }
 function tableLink(t){return (LAN||location.origin)+"/?ban="+encodeURIComponent(t)}
 function showTableQr(t){
-  openModal('<div id="inv" class="qrprint"><div class="tcard"><div class="tshop">'+esc(shopName)+'</div><div class="tno">BÀN '+t+'</div><div class="tbig">'+qrImg(tableLink(t),6)+'</div><div class="thow">Quét mã để xem thực đơn và gọi món</div><div class="twifi">Kết nối WiFi của quán trước khi quét</div><div class="tmsao">Gọi món bằng MAO</div></div></div>'+
+  openModal('<div id="inv" class="qrprint"><div class="tcard"><div class="tshop">'+esc(shopName)+'</div><div class="tno">BÀN '+t+'</div><div class="tbig">'+qrImg(tableLink(t),6)+'</div><div class="thow">Quét mã để xem thực đơn và gọi món</div><div class="twifi">Kết nối WiFi của quán trước khi quét</div><div class="tmao">Gọi món bằng MAO</div></div></div>'+
     '<div class="noprint"><div class="muted" style="margin:10px 0 0;word-break:break-all;font-size:12px">'+esc(tableLink(t))+'</div>'+
     '<div style="margin-top:12px;display:grid;gap:8px"><button class="btn acc block" style="height:48px" onclick="window.print()">In mã QR</button><button class="btn ghost block" onclick="closeModal()">Đóng</button></div></div>');
 }

@@ -111,7 +111,7 @@ Mỗi lần đẩy mã lên nhánh `main` của repo, GitHub Actions (`.github/w
 
 Tải ở mục **Releases → ban-moi-nhat** của repo. Đổi phiên bản: sửa `version` trong `package.json` và `versionCode`/`versionName` trong `android/app/build.gradle`.
 
-App Android (`android/`): chế độ *máy chính* chạy `server.js` trong dịch vụ chạy nền (giữ WiFi, tự chạy khi bật máy), chế độ *kết nối* mở trang của máy chính. Khóa ký `android/app/msao-release.jks` phải giữ nguyên để bản sau cài đè được; giữ repo ở chế độ Private.
+App Android (`android/`): chế độ *máy chính* chạy `server.js` trong dịch vụ chạy nền (giữ WiFi, tự chạy khi bật máy), chế độ *kết nối* mở trang của máy chính. Khóa ký `android/app/mao-release.jks` phải giữ nguyên để bản sau cài đè được; giữ repo ở chế độ Private.
 
 iPhone/iPad: không có app, dùng Safari → Thêm vào MH chính (Apple không cho chạy máy chủ ngầm và app ngoài App Store). Hướng dẫn chi tiết ở mục 11 của HUONG-DAN.pdf.
 

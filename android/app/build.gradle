@@ -2,10 +2,10 @@ plugins { id 'com.android.application' }
 
 // Node.js nhúng (nodejs-mobile): libnode/bin/<abi>/libnode.so và libnode/include/node/*.h, tải trong bước build (xem .github/workflows)
 android {
-    namespace 'vn.msao.app'
+    namespace 'vn.mao.app'
     compileSdk 34
     defaultConfig {
-        applicationId 'vn.msao.app'
+        applicationId 'vn.mao.app'
         minSdk 24
         targetSdk 34
         versionCode 110
@@ -17,7 +17,7 @@ android {
     sourceSets { main { jniLibs.srcDirs = ['libnode/bin'] } }
     signingConfigs {
         // ponytail: khóa ký nằm trong repo riêng tư cho gọn; repo công khai thì chuyển sang GitHub Secrets
-        release { storeFile file('msao-release.jks'); storePassword 'msao-ky-app'; keyAlias 'msao'; keyPassword 'msao-ky-app' }
+        release { storeFile file('mao-release.jks'); storePassword 'mao-ky-app'; keyAlias 'mao'; keyPassword 'mao-ky-app' }
     }
     buildTypes { release { signingConfig signingConfigs.release; minifyEnabled false } }
     compileOptions { sourceCompatibility JavaVersion.VERSION_11; targetCompatibility JavaVersion.VERSION_11 }

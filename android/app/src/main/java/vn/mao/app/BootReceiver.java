@@ -1,4 +1,4 @@
-package vn.msao.app;
+package vn.mao.app;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -8,7 +8,7 @@ import android.content.Intent;
 public class BootReceiver extends BroadcastReceiver {
     @Override public void onReceive(Context c, Intent i) {
         if (Intent.ACTION_BOOT_COMPLETED.equals(i.getAction())
-                && "server".equals(c.getSharedPreferences("msao", Context.MODE_PRIVATE).getString("mode", "")))
+                && "server".equals(c.getSharedPreferences("mao", Context.MODE_PRIVATE).getString("mode", "")))
             NodeService.start(c);
     }
 }

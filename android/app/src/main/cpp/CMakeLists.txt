@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.22.1)
-project(msao)
+project(mao)
 add_library(native-lib SHARED native-lib.cpp)
 set(LIBNODE ${CMAKE_SOURCE_DIR}/../../../libnode)
 target_include_directories(native-lib PRIVATE ${LIBNODE}/include/node)

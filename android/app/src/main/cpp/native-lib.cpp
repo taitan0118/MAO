@@ -21,7 +21,7 @@ static void *log_thread(void *) { // chuyển console.log của Node sang logcat
 }
 
 extern "C" JNIEXPORT jint JNICALL
-Java_vn_msao_app_NodeService_startNode(JNIEnv *env, jclass, jobjectArray arguments) {
+Java_vn_mao_app_NodeService_startNode(JNIEnv *env, jclass, jobjectArray arguments) {
     jsize count = env->GetArrayLength(arguments);
     std::vector<std::string> args;
     size_t total = 0;

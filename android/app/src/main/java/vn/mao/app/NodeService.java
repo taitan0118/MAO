@@ -1,4 +1,4 @@
-package vn.msao.app;
+package vn.mao.app;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -55,9 +55,9 @@ public class NodeService extends Service {
         else startForeground(1, n);
 
         if (wake == null) {
-            wake = ((PowerManager) getSystemService(POWER_SERVICE)).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "msao:may-chu");
+            wake = ((PowerManager) getSystemService(POWER_SERVICE)).newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "mao:may-chu");
             wake.acquire();
-            wifi = ((WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE)).createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "msao:may-chu");
+            wifi = ((WifiManager) getApplicationContext().getSystemService(WIFI_SERVICE)).createWifiLock(WifiManager.WIFI_MODE_FULL_HIGH_PERF, "mao:may-chu");
             wifi.acquire();
         }
         if (!started) {
@@ -94,7 +94,7 @@ public class NodeService extends Service {
     /** Chép mã máy chủ từ assets ra bộ nhớ app, chỉ khi app vừa cài hoặc vừa cập nhật. */
     private void copyProjectIfUpdated(File project) throws Exception {
         long stamp = getPackageManager().getPackageInfo(getPackageName(), 0).lastUpdateTime;
-        SharedPreferences p = getSharedPreferences("msao", MODE_PRIVATE);
+        SharedPreferences p = getSharedPreferences("mao", MODE_PRIVATE);
         if (project.exists() && p.getLong("projectStamp", 0) == stamp) return;
         deleteAll(project);
         copyAsset(getAssets(), "nodejs-project", project);

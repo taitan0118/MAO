@@ -1,4 +1,4 @@
-package vn.msao.app;
+package vn.mao.app;
 
 import android.Manifest;
 import android.app.Activity;
@@ -40,7 +40,7 @@ import java.net.URL;
  * Một app, hai chế độ:
  *  - "server": máy này là máy chủ của quán (máy POS Android), chạy MAO bên trong và mở màn hình máy quầy.
  *  - "client": kết nối tới máy chủ có sẵn trong quán (máy tính hoặc POS khác), dùng cho chủ quán, nhân viên, máy quầy.
- * Giao diện là trang web của MAO; trang gọi window.msaoDesktop để in, báo đơn mới, lưu file Excel.
+ * Giao diện là trang web của MAO; trang gọi window.maoDesktop để in, báo đơn mới, lưu file Excel.
  */
 public class MainActivity extends Activity {
     static final String LOCAL = "http://127.0.0.1:3000";
@@ -52,7 +52,7 @@ public class MainActivity extends Activity {
 
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
-        prefs = getSharedPreferences("msao", MODE_PRIVATE);
+        prefs = getSharedPreferences("mao", MODE_PRIVATE);
         web = new WebView(this);
         setContentView(web);
         WebSettings s = web.getSettings();
@@ -60,7 +60,7 @@ public class MainActivity extends Activity {
         s.setDomStorageEnabled(true);
         s.setMediaPlaybackRequiresUserGesture(false); // tiếng chuông khi có đơn
         s.setAllowFileAccess(false);
-        web.addJavascriptInterface(new Bridge(), "msaoDesktop");
+        web.addJavascriptInterface(new Bridge(), "maoDesktop");
         web.setWebViewClient(new WebViewClient() {
             @Override public void onReceivedError(WebView v, WebResourceRequest r, WebResourceError e) {
                 if (r.isForMainFrame()) v.loadUrl("file:///android_asset/chon.html?loi=" + Uri.encode(base()));
@@ -155,7 +155,7 @@ public class MainActivity extends Activity {
     @Override protected void onResume() { super.onResume(); visible = true; }
     @Override protected void onPause() { super.onPause(); visible = false; }
 
-    /** Các hàm trang web gọi qua window.msaoDesktop. */
+    /** Các hàm trang web gọi qua window.maoDesktop. */
     class Bridge {
         @JavascriptInterface public void printReceipt() {
             // ponytail: in qua hệ thống in của Android (máy POS có dịch vụ in sẵn sẽ hiện trong danh sách);

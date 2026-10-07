@@ -39,7 +39,7 @@ label{display:block;font-size:14px;color:var(--muted);margin-bottom:4px}
     <div class="card">
       <h2>Không kết nối được máy chủ</h2>
       <p id="errText"></p>
-      <div class="row"><button onclick="msaoDesktop.retry()">Thử lại</button><button class="ghost" onclick="msaoDesktop.reset()">Đổi chế độ</button></div>
+      <div class="row"><button onclick="maoDesktop.retry()">Thử lại</button><button class="ghost" onclick="maoDesktop.reset()">Đổi chế độ</button></div>
     </div>
   </div>
 
@@ -48,7 +48,7 @@ label{display:block;font-size:14px;color:var(--muted);margin-bottom:4px}
     <div class="card">
       <h2>Máy này là máy chính của quán</h2>
       <p>Dành cho máy POS Android đặt ở quầy. MAO chạy ngay trên máy này, quán không cần máy tính. Máy phải luôn bật và bắt WiFi của quán.</p>
-      <button onclick="msaoDesktop.chooseServer()">Dùng làm máy chính</button>
+      <button onclick="maoDesktop.chooseServer()">Dùng làm máy chính</button>
     </div>
     <div class="card">
       <h2>Kết nối máy chính có sẵn</h2>
@@ -73,12 +73,12 @@ else if(q.has("loi")){
   show("error");
 } else {
   show("choose");
-  try{document.getElementById("addr").value=(msaoDesktop.savedAddress()||"").replace(/^https?:\/\//,"")}catch(e){}
+  try{document.getElementById("addr").value=(maoDesktop.savedAddress()||"").replace(/^https?:\/\//,"")}catch(e){}
 }
 function go(page){
   var a=document.getElementById("addr").value.trim();
   if(!/^(https?:\/\/)?[\w.-]+(:\d+)?\/?$/.test(a)){document.getElementById("addrErr").textContent="Nhập địa chỉ dạng 192.168.1.10";return}
-  document.getElementById("addrErr").textContent="";msaoDesktop.connect(a,page);
+  document.getElementById("addrErr").textContent="";maoDesktop.connect(a,page);
 }
 </script>
 </body></html>

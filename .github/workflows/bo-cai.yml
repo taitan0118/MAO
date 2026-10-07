@@ -76,7 +76,7 @@ jobs:
           cp server.js du-lieu-mau.js android/nodejs-project/android-main.js $A/ && cp -r public $A/
           for f in qrcode-generator/qrcode.js xlsx/dist/xlsx.full.min.js exceljs/dist/exceljs.min.js; do
             mkdir -p "$A/node_modules/$(dirname $f)" && cp "node_modules/$f" "$A/node_modules/$f"; done
-          echo '{"name":"msao-android","private":true}' > $A/package.json
+          echo '{"name":"mao-android","private":true}' > $A/package.json
       - run: gradle -p android assembleRelease --stacktrace
       - run: cp android/app/build/outputs/apk/release/app-release.apk MAO-1.1.0-android.apk
       - uses: actions/upload-artifact@v4

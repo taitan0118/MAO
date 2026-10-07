@@ -1,5 +1,5 @@
 {
-  "name": "msao",
+  "name": "mao",
   "productName": "MAO",
   "version": "1.1.0",
   "description": "MAO - phần mềm gọi món bằng mã QR cho quán ăn",
@@ -27,7 +27,7 @@
     "electron-builder": ">=26.0.0"
   },
   "build": {
-    "appId": "vn.msao.app",
+    "appId": "vn.mao.app",
     "productName": "MAO",
     "copyright": "MAO · Missing App Order",
     "files": [
