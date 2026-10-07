@@ -1,4 +1,4 @@
-# Tạo bộ cài MAO cho Windows (.exe), macOS (.dmg), Android (.apk), iPad/iPhone (.ipa) mỗi khi đẩy mã lên nhánh main.
+# Tạo bộ cài MAO cho Windows (.exe), macOS (.dmg), Android (.apk) mỗi khi đẩy mã lên nhánh main.
 # Kết quả nằm ở mục Releases, bản "ban-moi-nhat".
 name: Tao bo cai MAO
 on:
@@ -82,43 +82,8 @@ jobs:
       - uses: actions/upload-artifact@v4
         with: { name: android, path: MAO-1.1.0-android.apk, if-no-files-found: error }
 
-  ios:
-    needs: kiem-tra
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with: { node-version: 22 }
-      - run: npm install --omit=dev
-      - run: brew install xcodegen
-      - name: Tải Node.js cho iOS (nodejs-mobile)
-        env: { GH_TOKEN: '${{ github.token }}' }
-        run: |
-          gh release download --repo nodejs-mobile/nodejs-mobile --pattern '*ios*.zip' --dir /tmp/nm
-          unzip -q /tmp/nm/*.zip -d /tmp/nm/x
-          FW=$(find /tmp/nm/x -type d -name 'NodeMobile.xcframework' | head -1)
-          test -n "$FW" || { echo "Không thấy NodeMobile.xcframework"; find /tmp/nm/x -maxdepth 3; exit 1; }
-          mkdir -p ios/Frameworks && cp -r "$FW" ios/Frameworks/
-      - name: Gói máy chủ MAO vào app
-        run: |
-          A=ios/MAO/nodejs-project; mkdir -p $A
-          cp server.js du-lieu-mau.js android/nodejs-project/android-main.js $A/ && cp -r public $A/
-          for f in qrcode-generator/qrcode.js xlsx/dist/xlsx.full.min.js exceljs/dist/exceljs.min.js; do
-            mkdir -p "$A/node_modules/$(dirname $f)" && cp "node_modules/$f" "$A/node_modules/$f"; done
-          echo '{"name":"mao-ios","private":true}' > $A/package.json
-          cp android/app/src/main/assets/chon.html ios/chon.html
-      - name: Dựng app (chưa ký)
-        run: |
-          cd ios && xcodegen generate
-          xcodebuild -project MAO.xcodeproj -scheme MAO -configuration Release -sdk iphoneos \
-            -derivedDataPath build CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build
-          mkdir Payload && cp -r build/Build/Products/Release-iphoneos/MAO.app Payload/
-          zip -qry ../MAO-1.1.0-ios-chua-ky.ipa Payload
-      - uses: actions/upload-artifact@v4
-        with: { name: ios, path: MAO-1.1.0-ios-chua-ky.ipa, if-no-files-found: error }
-
   phat-hanh:
-    needs: [windows, mac, android, ios]
+    needs: [windows, mac, android]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4
@@ -129,4 +94,4 @@ jobs:
           ls -la out
           gh release delete ban-moi-nhat --yes --cleanup-tag || true
           gh release create ban-moi-nhat out/* --target "${{ github.sha }}" --title "MAO bản mới nhất" \
-            --notes "Windows: MAO-Setup-*.exe · macOS: MAO-*-mac-arm64.dmg (chip Apple M) hoặc mac-x64.dmg (chip Intel) · Android/POS Android: MAO-*-android.apk · iPad/iPhone: MAO-*-ios-chua-ky.ipa (cần ký, xem hướng dẫn)"
+            --notes "Windows: MAO-Setup-*.exe · macOS: MAO-*-mac-arm64.dmg (chip Apple M) hoặc mac-x64.dmg (chip Intel) · Android/POS Android: MAO-*-android.apk"
