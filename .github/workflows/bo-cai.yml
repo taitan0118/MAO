@@ -86,12 +86,30 @@ jobs:
     needs: [windows, mac, android]
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - uses: actions/download-artifact@v4
         with: { path: out, merge-multiple: true }
-      - name: Đưa bộ cài lên mục Releases
+      - name: Đưa bộ cài và hướng dẫn lên mục Releases
         env: { GH_TOKEN: '${{ github.token }}', GH_REPO: '${{ github.repository }}' }
         run: |
+          for f in huong-dan/MAO-Cai-*.pdf; do cp "$f" "out/Huong-dan-$(basename "$f" | sed 's/MAO-Cai-//')"; done
+          B="https://github.com/${{ github.repository }}/releases/download/ban-moi-nhat"
+          cat > notes.md <<EOF
+          ## Chọn file theo máy của quán
+
+          | Máy | Tải file cài | Hướng dẫn cài |
+          |---|---|---|
+          | Windows, máy tính | MAO.exe | [Huong-dan-Windows.pdf]($B/Huong-dan-Windows.pdf) |
+          | Mac chip Apple M | MAO-Mac-arm64.dmg | [Huong-dan-Mac.pdf]($B/Huong-dan-Mac.pdf) |
+          | Mac chip Intel | MAO-Mac-x64.dmg | [Huong-dan-Mac.pdf]($B/Huong-dan-Mac.pdf) |
+          | Máy POS (Windows hoặc Android) | MAO.exe hoặc MAO.apk | [Huong-dan-May-POS.pdf]($B/Huong-dan-May-POS.pdf) |
+          | Điện thoại, máy tính bảng Android | MAO.apk | [Huong-dan-Android.pdf]($B/Huong-dan-Android.pdf) |
+          | iPad | không cần cài, dùng Safari | [Huong-dan-iPad.pdf]($B/Huong-dan-iPad.pdf) |
+          | iPhone | không cần cài, dùng Safari | [Huong-dan-iPhone.pdf]($B/Huong-dan-iPhone.pdf) |
+
+          Bỏ qua mục "Source code" ở cuối trang: đó là mã nguồn, không cài được.
+          EOF
+          sed -i 's/^          //' notes.md
           ls -la out
           gh release delete ban-moi-nhat --yes --cleanup-tag || true
-          gh release create ban-moi-nhat out/* --target "${{ github.sha }}" --title "MAO bản mới nhất" \
-            --notes "Windows: MAO.exe · macOS: MAO-Mac-arm64.dmg (chip Apple M) hoặc MAO-Mac-x64.dmg (chip Intel) · Android/POS Android: MAO.apk"
+          gh release create ban-moi-nhat out/* --target "${{ github.sha }}" --title "MAO bản mới nhất" --notes-file notes.md
