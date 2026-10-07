@@ -152,7 +152,3 @@ tao-bo-cai.bat     Tạo MAO-Setup.exe
 - Đổi cổng: `set PORT=8080` trước `node server.js`.
 - Thư viện chỉ dùng ở trình duyệt (QR, Excel) được cài bằng `npm install` và phục vụ tại `/vendor/`, nên quán không cần Internet khi bán hàng.
 - Giới hạn đã biết: dữ liệu là một file JSON ghi lại toàn bộ mỗi lần thay đổi, phù hợp một quán trong nhiều năm; nếu file vượt vài chục MB nên chuyển sang SQLite.
-
-### 11.6 iPad làm máy chính (không cần máy tính)
-
-App MAO cho iPad chạy máy chủ ngay trong app. Cài bằng TestFlight (cần tài khoản Apple Developer để phát hành). Mở app, chọn **Dùng làm máy chính**, cho phép quyền **Mạng cục bộ**. Điều cần nhớ: phải để MAO luôn mở trên màn hình (iPad tạm dừng app khi thoát ra hoặc khóa màn hình), nên cắm sạc và bật Chế độ truy cập được hướng dẫn. In bằng AirPrint. Dữ liệu nằm trong iPad, cần xuất Excel và sao lưu định kỳ.
