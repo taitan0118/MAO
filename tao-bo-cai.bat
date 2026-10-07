@@ -22,6 +22,6 @@ if errorlevel 1 (
   exit /b
 )
 echo.
-echo XONG! Bo cai MAO-Setup nam trong thu muc dist
+echo XONG! Bo cai MAO.exe nam trong thu muc dist
 start "" "%~dp0dist"
 pause

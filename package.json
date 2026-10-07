@@ -59,7 +59,7 @@
       "shortcutName": "MAO",
       "runAfterFinish": true,
       "deleteAppDataOnUninstall": false,
-      "artifactName": "MAO-Setup-${version}.exe"
+      "artifactName": "MAO.exe"
     },
     "mac": {
       "target": "dmg",
@@ -71,7 +71,7 @@
       }
     },
     "dmg": {
-      "artifactName": "MAO-${version}-mac-${arch}.dmg"
+      "artifactName": "MAO-Mac-${arch}.dmg"
     }
   }
 }

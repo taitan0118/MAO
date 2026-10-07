@@ -3,7 +3,7 @@
 Hướng dẫn đầy đủ cho quán (có hình): **HUONG-DAN.pdf**. File này dành cho người bán và sửa phần mềm.
 
 Có hai cách chạy:
-- **Ứng dụng desktop** (giao cho quán): bộ cài `MAO-Setup.exe`, xem mục *Tạo bộ cài ứng dụng desktop* ở cuối.
+- **Ứng dụng desktop** (giao cho quán): bộ cài `MAO.exe`, xem mục *Tạo bộ cài ứng dụng desktop* ở cuối.
 - **Chạy bằng file .bat** (mục 1 bên dưới): cần cài Node.js, dùng để thử nhanh.
 
 Phần mềm chạy trên **một máy tính Windows đặt tại quán** (máy chủ). Khách, nhân viên và chủ quán dùng **trình duyệt** trên điện thoại, máy tính bảng hoặc máy tính, không cần cài app.
@@ -105,8 +105,8 @@ Thử xong, **xóa thư mục `data`** trước khi dùng thật.
 ## Bộ cài tự động trên GitHub (Windows, macOS, Android)
 
 Mỗi lần đẩy mã lên nhánh `main` của repo, GitHub Actions (`.github/workflows/bo-cai.yml`) tự chạy kiểm tra rồi tạo:
-- `MAO-Setup-<phiên bản>.exe` (Windows, POS Windows)
-- `MAO-<phiên bản>-mac-arm64.dmg`, `MAO-<phiên bản>-mac-x64.dmg` (macOS, chưa có chữ ký Apple)
+- `MAO.exe` (Windows, POS Windows)
+- `MAO-Mac-arm64.dmg`, `MAO-Mac-x64.dmg` (macOS, chưa có chữ ký Apple)
 - `MAO-<phiên bản>-android.apk` (Android, POS Android; Node.js nhúng bằng nodejs-mobile)
 
 Tải ở mục **Releases → ban-moi-nhat** của repo. Đổi phiên bản: sửa `version` trong `package.json` và `versionCode`/`versionName` trong `android/app/build.gradle`.
@@ -115,12 +115,12 @@ App Android (`android/`): chế độ *máy chính* chạy `server.js` trong d�
 
 iPhone/iPad: không có app, dùng Safari → Thêm vào MH chính (Apple không cho chạy máy chủ ngầm và app ngoài App Store). Hướng dẫn chi tiết ở mục 11 của HUONG-DAN.pdf.
 
-## Tạo bộ cài ứng dụng desktop (MAO-Setup.exe)
+## Tạo bộ cài ứng dụng desktop (MAO.exe)
 
 Làm trên một máy Windows có Internet, đã cài Node.js LTS:
 
 1. Giải nén MAO.zip, bấm đúp **`tao-bo-cai.bat`** (lần đầu tải Electron, mất vài phút).
-2. Xong, thư mục `dist` mở ra, có file **`MAO-Setup-1.1.0.exe`**. Đây là file giao cho quán.
+2. Xong, thư mục `dist` mở ra, có file **`MAO.exe`**. Đây là file giao cho quán.
 3. Thử ngay trên máy đó: cài, mở MAO, tạo tài khoản, quét QR bằng điện thoại cùng WiFi, chọn máy in ở menu *Máy in hóa đơn* rồi in thử.
 
 Chạy thử không cần tạo bộ cài: `npm install` rồi `npm run app`.
@@ -144,7 +144,7 @@ desktop/           Ứng dụng desktop (Electron): main.js, preload.js, icon
 build/             Icon và script tường lửa cho bộ cài (electron-builder)
 android/           App Android (Java + Node.js nhúng)
 .github/workflows/ Tạo bộ cài tự động
-tao-bo-cai.bat     Tạo MAO-Setup.exe
+tao-bo-cai.bat     Tạo MAO.exe
 ```
 
 - Mọi quyền được kiểm tra **trên máy chủ** (`act(tên, ai_được_phép, ...)` trong `server.js`); giá món luôn lấy từ thực đơn trên máy chủ.
