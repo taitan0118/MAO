@@ -1,6 +1,6 @@
 @echo off
 cd /d "%~dp0"
-title MSAO - Tao bo cai
+title MAO - Tao bo cai
 where node >nul 2>nul
 if errorlevel 1 (
   echo Can cai Node.js ban LTS truoc: https://nodejs.org
@@ -22,6 +22,6 @@ if errorlevel 1 (
   exit /b
 )
 echo.
-echo XONG! Bo cai MSAO-Setup nam trong thu muc dist
+echo XONG! Bo cai MAO-Setup nam trong thu muc dist
 start "" "%~dp0dist"
 pause

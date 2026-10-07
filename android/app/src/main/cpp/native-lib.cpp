@@ -10,12 +10,12 @@
 #include "node.h"
 
 static int pipes[2];
-static void *log_thread(void *) { // chuyển console.log của Node sang logcat (adb logcat -s MSAO-NODE)
+static void *log_thread(void *) { // chuyển console.log của Node sang logcat (adb logcat -s MAO-NODE)
     char buf[2048]; ssize_t n;
     while ((n = read(pipes[0], buf, sizeof buf - 1)) > 0) {
         if (buf[n - 1] == '\n') --n;
         buf[n] = 0;
-        __android_log_write(ANDROID_LOG_INFO, "MSAO-NODE", buf);
+        __android_log_write(ANDROID_LOG_INFO, "MAO-NODE", buf);
     }
     return nullptr;
 }

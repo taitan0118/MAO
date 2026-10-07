@@ -26,7 +26,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Inet4Address;
 
-/** Chế độ "máy chính": chạy máy chủ MSAO (Node.js nhúng) trong dịch vụ chạy nền, giữ WiFi và CPU thức. */
+/** Chế độ "máy chính": chạy máy chủ MAO (Node.js nhúng) trong dịch vụ chạy nền, giữ WiFi và CPU thức. */
 public class NodeService extends Service {
     static { System.loadLibrary("node"); System.loadLibrary("native-lib"); }
     public static native int startNode(String[] args);
@@ -45,11 +45,11 @@ public class NodeService extends Service {
         NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         Notification.Builder b;
         if (Build.VERSION.SDK_INT >= 26) {
-            nm.createNotificationChannel(new NotificationChannel(CHANNEL, "Máy chủ MSAO", NotificationManager.IMPORTANCE_LOW));
+            nm.createNotificationChannel(new NotificationChannel(CHANNEL, "Máy chủ MAO", NotificationManager.IMPORTANCE_LOW));
             b = new Notification.Builder(this, CHANNEL);
         } else b = new Notification.Builder(this);
         PendingIntent open = PendingIntent.getActivity(this, 0, new Intent(this, MainActivity.class), PendingIntent.FLAG_IMMUTABLE);
-        Notification n = b.setSmallIcon(R.drawable.ic_stat).setContentTitle("MSAO đang chạy")
+        Notification n = b.setSmallIcon(R.drawable.ic_stat).setContentTitle("MAO đang chạy")
                 .setContentText("Khách vẫn gọi món được. Đừng tắt app này.").setContentIntent(open).setOngoing(true).build();
         if (Build.VERSION.SDK_INT >= 34) startForeground(1, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE);
         else startForeground(1, n);
@@ -77,7 +77,7 @@ public class NodeService extends Service {
             File data = new File(getExternalFilesDir(null), "data");
             startNode(new String[]{"node", new File(project, "android-main.js").getAbsolutePath(), data.getAbsolutePath(), ip});
         } catch (Exception e) {
-            Log.e("MSAO", "Không chạy được máy chủ", e);
+            Log.e("MAO", "Không chạy được máy chủ", e);
         }
     }
 

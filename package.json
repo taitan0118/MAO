@@ -1,9 +1,9 @@
 {
   "name": "msao",
-  "productName": "MSAO",
+  "productName": "MAO",
   "version": "1.1.0",
-  "description": "MSAO - phần mềm gọi món bằng mã QR cho quán ăn",
-  "author": "MSAO",
+  "description": "MAO - phần mềm gọi món bằng mã QR cho quán ăn",
+  "author": "MAO",
   "private": true,
   "main": "desktop/main.js",
   "scripts": {
@@ -28,8 +28,8 @@
   },
   "build": {
     "appId": "vn.msao.app",
-    "productName": "MSAO",
-    "copyright": "MSAO · Missing App Order",
+    "productName": "MAO",
+    "copyright": "MAO · Missing App Order",
     "files": [
       "server.js",
       "du-lieu-mau.js",
@@ -56,10 +56,10 @@
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": "always",
       "createStartMenuShortcut": true,
-      "shortcutName": "MSAO",
+      "shortcutName": "MAO",
       "runAfterFinish": true,
       "deleteAppDataOnUninstall": false,
-      "artifactName": "MSAO-Setup-${version}.exe"
+      "artifactName": "MAO-Setup-${version}.exe"
     },
     "mac": {
       "target": "dmg",
@@ -67,11 +67,11 @@
       "icon": "build/icon.png",
       "identity": "-",
       "extendInfo": {
-        "NSLocalNetworkUsageDescription": "MSAO nhận đơn từ điện thoại của khách và nhân viên trong WiFi quán."
+        "NSLocalNetworkUsageDescription": "MAO nhận đơn từ điện thoại của khách và nhân viên trong WiFi quán."
       }
     },
     "dmg": {
-      "artifactName": "MSAO-${version}-mac-${arch}.dmg"
+      "artifactName": "MAO-${version}-mac-${arch}.dmg"
     }
   }
 }

@@ -1,6 +1,6 @@
 {
- "name": "MSAO · Quản lý quán",
- "short_name": "MSAO",
+ "name": "MAO · Quản lý quán",
+ "short_name": "MAO",
  "start_url": "/chuquan",
  "scope": "/",
  "display": "standalone",

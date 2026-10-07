@@ -38,9 +38,9 @@ import java.net.URL;
 
 /**
  * Một app, hai chế độ:
- *  - "server": máy này là máy chủ của quán (máy POS Android), chạy MSAO bên trong và mở màn hình máy quầy.
+ *  - "server": máy này là máy chủ của quán (máy POS Android), chạy MAO bên trong và mở màn hình máy quầy.
  *  - "client": kết nối tới máy chủ có sẵn trong quán (máy tính hoặc POS khác), dùng cho chủ quán, nhân viên, máy quầy.
- * Giao diện là trang web của MSAO; trang gọi window.msaoDesktop để in, báo đơn mới, lưu file Excel.
+ * Giao diện là trang web của MAO; trang gọi window.msaoDesktop để in, báo đơn mới, lưu file Excel.
  */
 public class MainActivity extends Activity {
     static final String LOCAL = "http://127.0.0.1:3000";
@@ -131,7 +131,7 @@ public class MainActivity extends Activity {
     private void changeMode() {
         if (!"server".equals(mode())) { prefs.edit().remove("mode").apply(); route("/nhanvien"); return; }
         new AlertDialog.Builder(this).setTitle("Tắt máy chủ trên máy này?")
-                .setMessage("Khách sẽ không gọi món được cho tới khi bật lại. Dữ liệu vẫn được giữ trên máy. Sau khi tắt, mở lại MSAO để chọn chế độ.")
+                .setMessage("Khách sẽ không gọi món được cho tới khi bật lại. Dữ liệu vẫn được giữ trên máy. Sau khi tắt, mở lại MAO để chọn chế độ.")
                 .setNegativeButton("Không", null)
                 .setPositiveButton("Tắt máy chủ", (d, w) -> {
                     prefs.edit().remove("mode").apply();
@@ -161,7 +161,7 @@ public class MainActivity extends Activity {
             // ponytail: in qua hệ thống in của Android (máy POS có dịch vụ in sẵn sẽ hiện trong danh sách);
             // máy POS chỉ có SDK riêng của hãng thì cần thêm cầu nối riêng cho hãng đó
             runOnUiThread(() -> ((PrintManager) getSystemService(PRINT_SERVICE))
-                    .print("MSAO hóa đơn", web.createPrintDocumentAdapter("MSAO hóa đơn"), new PrintAttributes.Builder().build()));
+                    .print("MAO hóa đơn", web.createPrintDocumentAdapter("MAO hóa đơn"), new PrintAttributes.Builder().build()));
         }
 
         @JavascriptInterface public void notify(String msg) {
@@ -174,7 +174,7 @@ public class MainActivity extends Activity {
             } else b = new Notification.Builder(MainActivity.this).setPriority(Notification.PRIORITY_HIGH).setDefaults(Notification.DEFAULT_ALL);
             PendingIntent open = PendingIntent.getActivity(MainActivity.this, 0,
                     new Intent(MainActivity.this, MainActivity.class).addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP), PendingIntent.FLAG_IMMUTABLE);
-            nm.notify((int) (System.currentTimeMillis() % 100000), b.setSmallIcon(R.drawable.ic_stat).setContentTitle("MSAO")
+            nm.notify((int) (System.currentTimeMillis() % 100000), b.setSmallIcon(R.drawable.ic_stat).setContentTitle("MAO")
                     .setContentText(msg).setContentIntent(open).setAutoCancel(true).build());
         }
 

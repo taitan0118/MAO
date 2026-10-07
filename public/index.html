@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>MSAO · Gọi món</title>
+<title>MAO · Gọi món</title>
 <link rel="manifest" href="/manifest.webmanifest">
 <link rel="icon" href="/icon.svg">
 <link rel="apple-touch-icon" href="/icon-180.png">
@@ -11,7 +11,7 @@
 <meta name="theme-color" content="#2563EB">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="MSAO">
+<meta name="apple-mobile-web-app-title" content="MAO">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <style>
 :root{--bg:#F8FAFC;--card:#fff;--ink:#0F172A;--mute:#64748B;--line:#E2E8F0;--acc:#2563EB;--sky:#38BDF8;--ok:#16a34a;--bad:#dc2626;--warn:#d97706;--r:16px}
@@ -299,10 +299,10 @@ h4{color:#2563EB}
 .ifound{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:14px;color:#334155;padding:4px 4px 10px}
 .seg{display:none!important}
 
-/* Logo MSAO trên mọi màn hình */
+/* Logo MAO trên mọi màn hình */
 .top{flex-direction:row!important;align-items:center!important}
 .brandrow{display:flex;align-items:center;gap:10px;min-width:0}
-/* Logo thương hiệu: logo Missing trong ô navy + chữ AO = MSAO */
+/* Logo thương hiệu: logo Missing trong ô navy + chữ AO = MAO */
 .brand-lock{display:flex;align-items:center;gap:3px;flex:none}
 .logo-tile{width:36px;height:36px;border-radius:9px;background:#0F172A;display:grid;place-items:center;flex:none}
 #site-logo{display:block;width:28px;height:28px}
@@ -321,14 +321,14 @@ h4{color:#2563EB}
 <body>
 
 <div class="top" id="topBar">
-  <div class="brandrow"><span class="brand-lock" role="img" aria-label="MSAO · Missing App Order" title="MSAO · Missing App Order"><span class="logo-tile"><span id="site-logo"></span></span><span id="site-word">AO</span></span><span class="brand-sep"></span><div class="brand"><b id="shopLabel">Quán</b><span id="whoLabel"></span></div></div>
+  <div class="brandrow"><span class="brand-lock" role="img" aria-label="MAO · Missing App Order" title="MAO · Missing App Order"><span class="logo-tile"><span id="site-logo"></span></span><span id="site-word">AO</span></span><span class="brand-sep"></span><div class="brand"><b id="shopLabel">Quán</b><span id="whoLabel"></span></div></div>
   <div class="seg">
     <button id="bC" class="on" onclick="show('customer')">Khách</button>
     <button id="bS" onclick="show('staff')">Nhân viên<span id="sBadge"></span></button>
     <button id="bO" onclick="show('owner')">Chủ quán</button>
   </div>
 </div><script src="/missing-logo.js"></script>
-<script>document.getElementById("site-logo").innerHTML=MissingLogo.svg({size:28,theme:"dark",label:"MSAO"});
+<script>document.getElementById("site-logo").innerHTML=MissingLogo.svg({size:28,theme:"dark",label:"MAO"});
 if(!/[?&]ban=/.test(location.search))MissingLogo.intro({target:"#site-logo",word:"#site-word",theme:"dark"});</script>
 
 <div id="netBlockView" class="hidden"></div>
@@ -661,7 +661,7 @@ function receiptHtml(inv,withQr){
     '<div class="hr"></div>'+
     '<div class="c">Cảm ơn quý khách, hẹn gặp lại!</div>'+
     '<div class="c sm">Phiếu này không thay thế hóa đơn điện tử</div>'+
-    '<div class="c msao-foot">Gọi món bằng MSAO</div>'+
+    '<div class="c msao-foot">Gọi món bằng MAO</div>'+
     '</div></div>';
 }
 function showInvoice(inv,qr){
@@ -1447,7 +1447,7 @@ function applyImport(){
 }
 function tableLink(t){return (LAN||location.origin)+"/?ban="+encodeURIComponent(t)}
 function showTableQr(t){
-  openModal('<div id="inv" class="qrprint"><div class="tcard"><div class="tshop">'+esc(shopName)+'</div><div class="tno">BÀN '+t+'</div><div class="tbig">'+qrImg(tableLink(t),6)+'</div><div class="thow">Quét mã để xem thực đơn và gọi món</div><div class="twifi">Kết nối WiFi của quán trước khi quét</div><div class="tmsao">Gọi món bằng MSAO</div></div></div>'+
+  openModal('<div id="inv" class="qrprint"><div class="tcard"><div class="tshop">'+esc(shopName)+'</div><div class="tno">BÀN '+t+'</div><div class="tbig">'+qrImg(tableLink(t),6)+'</div><div class="thow">Quét mã để xem thực đơn và gọi món</div><div class="twifi">Kết nối WiFi của quán trước khi quét</div><div class="tmsao">Gọi món bằng MAO</div></div></div>'+
     '<div class="noprint"><div class="muted" style="margin:10px 0 0;word-break:break-all;font-size:12px">'+esc(tableLink(t))+'</div>'+
     '<div style="margin-top:12px;display:grid;gap:8px"><button class="btn acc block" style="height:48px" onclick="window.print()">In mã QR</button><button class="btn ghost block" onclick="closeModal()">Đóng</button></div></div>');
 }

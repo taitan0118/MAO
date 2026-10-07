@@ -1,6 +1,6 @@
 @echo off
 cd /d "%~dp0"
-title MSAO - Phan mem goi mon QR
+title MAO - Phan mem goi mon QR
 where node >nul 2>nul
 if errorlevel 1 (
   echo Chua cai Node.js. Hay cai ban LTS tai https://nodejs.org roi chay lai file nay.

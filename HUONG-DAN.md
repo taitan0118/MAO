@@ -1,9 +1,9 @@
-# MSAO (Missing App Order) — Phần mềm gọi món QR
+# MAO (Missing App Order) — Phần mềm gọi món QR
 
 Hướng dẫn đầy đủ cho quán (có hình): **HUONG-DAN.pdf**. File này dành cho người bán và sửa phần mềm.
 
 Có hai cách chạy:
-- **Ứng dụng desktop** (giao cho quán): bộ cài `MSAO-Setup.exe`, xem mục *Tạo bộ cài ứng dụng desktop* ở cuối.
+- **Ứng dụng desktop** (giao cho quán): bộ cài `MAO-Setup.exe`, xem mục *Tạo bộ cài ứng dụng desktop* ở cuối.
 - **Chạy bằng file .bat** (mục 1 bên dưới): cần cài Node.js, dùng để thử nhanh.
 
 Phần mềm chạy trên **một máy tính Windows đặt tại quán** (máy chủ). Khách, nhân viên và chủ quán dùng **trình duyệt** trên điện thoại, máy tính bảng hoặc máy tính, không cần cài app.
@@ -105,9 +105,9 @@ Thử xong, **xóa thư mục `data`** trước khi dùng thật.
 ## Bộ cài tự động trên GitHub (Windows, macOS, Android)
 
 Mỗi lần đẩy mã lên nhánh `main` của repo, GitHub Actions (`.github/workflows/bo-cai.yml`) tự chạy kiểm tra rồi tạo:
-- `MSAO-Setup-<phiên bản>.exe` (Windows, POS Windows)
-- `MSAO-<phiên bản>-mac-arm64.dmg`, `MSAO-<phiên bản>-mac-x64.dmg` (macOS, chưa có chữ ký Apple)
-- `MSAO-<phiên bản>-android.apk` (Android, POS Android; Node.js nhúng bằng nodejs-mobile)
+- `MAO-Setup-<phiên bản>.exe` (Windows, POS Windows)
+- `MAO-<phiên bản>-mac-arm64.dmg`, `MAO-<phiên bản>-mac-x64.dmg` (macOS, chưa có chữ ký Apple)
+- `MAO-<phiên bản>-android.apk` (Android, POS Android; Node.js nhúng bằng nodejs-mobile)
 
 Tải ở mục **Releases → ban-moi-nhat** của repo. Đổi phiên bản: sửa `version` trong `package.json` và `versionCode`/`versionName` trong `android/app/build.gradle`.
 
@@ -115,20 +115,20 @@ App Android (`android/`): chế độ *máy chính* chạy `server.js` trong d�
 
 iPhone/iPad: không có app, dùng Safari → Thêm vào MH chính (Apple không cho chạy máy chủ ngầm và app ngoài App Store). Hướng dẫn chi tiết ở mục 11 của HUONG-DAN.pdf.
 
-## Tạo bộ cài ứng dụng desktop (MSAO-Setup.exe)
+## Tạo bộ cài ứng dụng desktop (MAO-Setup.exe)
 
 Làm trên một máy Windows có Internet, đã cài Node.js LTS:
 
-1. Giải nén MSAO.zip, bấm đúp **`tao-bo-cai.bat`** (lần đầu tải Electron, mất vài phút).
-2. Xong, thư mục `dist` mở ra, có file **`MSAO-Setup-1.1.0.exe`**. Đây là file giao cho quán.
-3. Thử ngay trên máy đó: cài, mở MSAO, tạo tài khoản, quét QR bằng điện thoại cùng WiFi, chọn máy in ở menu *Máy in hóa đơn* rồi in thử.
+1. Giải nén MAO.zip, bấm đúp **`tao-bo-cai.bat`** (lần đầu tải Electron, mất vài phút).
+2. Xong, thư mục `dist` mở ra, có file **`MAO-Setup-1.1.0.exe`**. Đây là file giao cho quán.
+3. Thử ngay trên máy đó: cài, mở MAO, tạo tài khoản, quét QR bằng điện thoại cùng WiFi, chọn máy in ở menu *Máy in hóa đơn* rồi in thử.
 
 Chạy thử không cần tạo bộ cài: `npm install` rồi `npm run app`.
 
 Ứng dụng desktop (thư mục `desktop/`):
 - Chạy `server.js` ngay trong app, mở cửa sổ ở `http://127.0.0.1:3000/nhanvien` (được coi là "trên máy chủ").
-- Dữ liệu ở `Documents\MSAO\data` (gỡ app không mất). Dữ liệu mẫu: `"C:\Program Files\MSAO\MSAO.exe" --mau` khi chưa có thư mục đó.
-- Bấm X chỉ thu xuống khay; thoát bằng menu *Thoát MSAO* (có hỏi lại). Chỉ chạy một bản cùng lúc.
+- Dữ liệu ở `Documents\MAO\data` (gỡ app không mất). Dữ liệu mẫu: `"C:\Program Files\MAO\MAO.exe" --mau` khi chưa có thư mục đó.
+- Bấm X chỉ thu xuống khay; thoát bằng menu *Thoát MAO* (có hỏi lại). Chỉ chạy một bản cùng lúc.
 - Tự chạy khi bật máy (bật sẵn lần đầu). Bộ cài tự mở tường lửa (mạng Private/Domain) và xóa luật khi gỡ.
 - In hóa đơn: chọn máy in trong menu thì in thẳng, không thì hiện hộp thoại. Đơn mới hiện thông báo Windows khi cửa sổ đang ẩn.
 - Chưa có chữ ký số nên Windows hiện "Windows protected your PC" khi cài: *More info* → *Run anyway*. Muốn bỏ cảnh báo cần mua chứng thư ký mã (code signing) rồi khai báo trong `build.win` của `package.json`.
@@ -144,7 +144,7 @@ desktop/           Ứng dụng desktop (Electron): main.js, preload.js, icon
 build/             Icon và script tường lửa cho bộ cài (electron-builder)
 android/           App Android (Java + Node.js nhúng)
 .github/workflows/ Tạo bộ cài tự động
-tao-bo-cai.bat     Tạo MSAO-Setup.exe
+tao-bo-cai.bat     Tạo MAO-Setup.exe
 ```
 
 - Mọi quyền được kiểm tra **trên máy chủ** (`act(tên, ai_được_phép, ...)` trong `server.js`); giá món luôn lấy từ thực đơn trên máy chủ.

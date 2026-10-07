@@ -10,9 +10,9 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
-        android:label="MSAO"
+        android:label="MAO"
         android:icon="@mipmap/ic_launcher"
-        android:theme="@style/MSAO"
+        android:theme="@style/MAO"
         android:usesCleartextTraffic="true"
         android:allowBackup="false"
         android:largeHeap="true">

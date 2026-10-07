@@ -1,6 +1,6 @@
-# Tạo bộ cài MSAO cho Windows (.exe), macOS (.dmg), Android (.apk) mỗi khi đẩy mã lên nhánh main.
+# Tạo bộ cài MAO cho Windows (.exe), macOS (.dmg), Android (.apk) mỗi khi đẩy mã lên nhánh main.
 # Kết quả nằm ở mục Releases, bản "ban-moi-nhat".
-name: Tao bo cai MSAO
+name: Tao bo cai MAO
 on:
   push: { branches: [main] }
   workflow_dispatch:
@@ -70,7 +70,7 @@ jobs:
           cp -r "$(dirname "$(dirname "$SO")")" $L/bin
           cp -r "$(dirname "$INC")" $L/include/node
           ls $L/bin
-      - name: Gói máy chủ MSAO vào app
+      - name: Gói máy chủ MAO vào app
         run: |
           A=android/app/src/main/assets/nodejs-project; mkdir -p $A
           cp server.js du-lieu-mau.js android/nodejs-project/android-main.js $A/ && cp -r public $A/
@@ -78,9 +78,9 @@ jobs:
             mkdir -p "$A/node_modules/$(dirname $f)" && cp "node_modules/$f" "$A/node_modules/$f"; done
           echo '{"name":"msao-android","private":true}' > $A/package.json
       - run: gradle -p android assembleRelease --stacktrace
-      - run: cp android/app/build/outputs/apk/release/app-release.apk MSAO-1.1.0-android.apk
+      - run: cp android/app/build/outputs/apk/release/app-release.apk MAO-1.1.0-android.apk
       - uses: actions/upload-artifact@v4
-        with: { name: android, path: MSAO-1.1.0-android.apk, if-no-files-found: error }
+        with: { name: android, path: MAO-1.1.0-android.apk, if-no-files-found: error }
 
   phat-hanh:
     needs: [windows, mac, android]
@@ -93,5 +93,5 @@ jobs:
         run: |
           ls -la out
           gh release delete ban-moi-nhat --yes --cleanup-tag || true
-          gh release create ban-moi-nhat out/* --target "${{ github.sha }}" --title "MSAO bản mới nhất" \
-            --notes "Windows: MSAO-Setup-*.exe · macOS: MSAO-*-mac-arm64.dmg (chip Apple M) hoặc mac-x64.dmg (chip Intel) · Android/POS Android: MSAO-*-android.apk"
+          gh release create ban-moi-nhat out/* --target "${{ github.sha }}" --title "MAO bản mới nhất" \
+            --notes "Windows: MAO-Setup-*.exe · macOS: MAO-*-mac-arm64.dmg (chip Apple M) hoặc mac-x64.dmg (chip Intel) · Android/POS Android: MAO-*-android.apk"

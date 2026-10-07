@@ -492,7 +492,7 @@ const server = http.createServer(async (req, res) => {
 
 if (require.main === module) {
   server.listen(PORT, '0.0.0.0', () => {
-    console.log('\n  MSAO · Missing App Order — phần mềm gọi món QR đang chạy');
+    console.log('\n  MAO · Missing App Order — phần mềm gọi món QR đang chạy');
     console.log('  Máy quầy (nhân viên):  ' + lanUrl() + '/nhanvien');
     console.log('  Chủ quán:              ' + lanUrl() + '/chuquan');
     console.log('  Dữ liệu lưu tại:       ' + DB_FILE);
