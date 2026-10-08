@@ -679,7 +679,7 @@ function receiptHtml(inv,withQr){
     '<div class="hr"></div>'+
     '<div class="c">Cảm ơn quý khách, hẹn gặp lại!</div>'+
     '<div class="c sm">Phiếu này không thay thế hóa đơn điện tử</div>'+
-    '<div class="c mao-foot">Gọi món bằng MAO</div>'+
+    '<div class="c mao-foot">Gọi món bằng MAO · © Missing</div>'+
     '</div></div>';
 }
 function showInvoice(inv,qr){
@@ -1344,7 +1344,8 @@ function ownerSettings(){
     '<div class="field"><label>Chủ tài khoản</label><input id="sHolder" maxlength="40" value="'+esc(bank.holder)+'"></div>'+
     '<button class="btn acc block" onclick="saveSettings()">Lưu thông tin</button></div>'+
     '<div class="card"><h4 style="margin-top:0">Thông tin thiết bị</h4><div id="devInfo" class="muted" style="font-size:14px">Đang tải…</div>'+
-    '<div class="row" style="margin-top:10px;gap:8px"><button class="btn block" onclick="devCopy()">Sao chép</button><button class="btn block" onclick="devSave()">Tải về (.txt)</button></div></div>';
+    '<div class="row" style="margin-top:10px;gap:8px"><button class="btn block" onclick="devCopy()">Sao chép</button><button class="btn block" onclick="devSave()">Tải về (.txt)</button></div></div>'+
+    '<div class="card"><h4 style="margin-top:0">Giới thiệu</h4><div style="font-size:14px;line-height:1.6"><b>MAO</b> (Missing App Order)<br>© 2026 Nguyễn Tấn Tài (Missing)<br><span class="muted">Dùng miễn phí cho quán của bạn. Không được bán lại hoặc phân phối lại. Xem file LICENSE.txt đi kèm.</span></div></div>';
 }
 var devText="";
 function devLines(d){
