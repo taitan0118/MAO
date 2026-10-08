@@ -93,6 +93,7 @@ jobs:
         env: { GH_TOKEN: '${{ github.token }}', GH_REPO: '${{ github.repository }}' }
         run: |
           for f in huong-dan/MAO-Cai-*.pdf; do cp "$f" "out/Huong-dan-$(basename "$f" | sed 's/MAO-Cai-//')"; done
+          cp huong-dan/MAO-Gioi-thieu.pdf out/Gioi-thieu-MAO.pdf; cp HUONG-DAN.pdf out/Huong-dan-Day-du.pdf
           B="https://github.com/${{ github.repository }}/releases/download/ban-moi-nhat"
           cat > notes.md <<EOF
           ## Chọn file theo máy của quán
@@ -106,6 +107,8 @@ jobs:
           | Điện thoại, máy tính bảng Android | MAO.apk | [Huong-dan-Android.pdf]($B/Huong-dan-Android.pdf) |
           | iPad | không cần cài, dùng Safari | [Huong-dan-iPad.pdf]($B/Huong-dan-iPad.pdf) |
           | iPhone | không cần cài, dùng Safari | [Huong-dan-iPhone.pdf]($B/Huong-dan-iPhone.pdf) |
+
+          Giới thiệu MAO: [Gioi-thieu-MAO.pdf]($B/Gioi-thieu-MAO.pdf). Hướng dẫn đầy đủ: [Huong-dan-Day-du.pdf]($B/Huong-dan-Day-du.pdf).
 
           Bỏ qua mục "Source code" ở cuối trang: đó là mã nguồn, không cài được.
           EOF
