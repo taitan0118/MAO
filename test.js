@@ -147,6 +147,15 @@ server.listen(0, '127.0.0.1', async () => {
     const e2 = await call('invoice-edit', { no: p2.invoice.no, items: [{ name: 'Gỏi cuốn', price: 25000, q: 5 }], reason: 'Khách gọi thêm' }, 'lan');
     assert.equal(e2.invoice.total, 85500, 'sửa hóa đơn tính lại khuyến mãi');
     assert.deepEqual((await state('as=owner', 'owner')).promos.map(p => p.used), [1, 1], 'sửa hóa đơn không đổi số lượt dùng');
+    // hủy hóa đơn: chỉ chủ quán, cần lý do, hoàn lượt khuyến mãi, không tính doanh thu
+    assert.equal((await call('invoice-void', { no: e2.invoice.no, reason: 'Khách bỏ về' }, 'lan')).status, 401, 'quầy không được hủy');
+    assert.equal((await own('invoice-void', { no: e2.invoice.no, reason: 'ngắn' })).status, 400);
+    assert.equal((await own('invoice-void', { no: p2.invoice.no, reason: 'Hóa đơn đã bị thay thế' })).status, 400, 'bản cũ đã thay thế không hủy');
+    assert.ok((await own('invoice-void', { no: e2.invoice.no, reason: 'Khách bỏ về không trả' })).ok);
+    assert.equal((await own('invoice-void', { no: e2.invoice.no, reason: 'Hủy lần hai' })).status, 400, 'không hủy hai lần');
+    const ov = await state('as=owner', 'owner');
+    assert.deepEqual(ov.promos.map(p => p.used), [0, 0], 'hoàn lại lượt khuyến mãi');
+    assert.equal(ov.invoices.find(i => i.no === e2.invoice.no).voided.reason, 'Khách bỏ về không trả');
     // trần 50% và dịp Tết/lễ
     assert.ok((await own('promo-save', { type: 'item', name: 'Tặng hết', tgt: 'c:Khai vị', mode: 'pct', v: 100 })).ok);
     await goOrder('03', 2);

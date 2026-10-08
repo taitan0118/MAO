@@ -341,7 +341,7 @@ if(!/[?&]ban=/.test(location.search))MissingLogo.intro({target:"#site-logo",word
   <div class="wrap">
     <div class="banner info hidden" id="staffBanner"><div>Nhân viên đang gọi món cho: <select id="tableSel" style="width:auto;display:inline-block;height:36px"></select></div><button class="btn ghost sm" onclick="exitStaffOrder()">Hủy</button></div>
     <div class="tabs"><button id="ctMenu" class="chip on" onclick="cTab('menu')">Thực đơn</button><button id="ctOrd" class="chip" onclick="cTab('orders')">Món đã gọi</button></div>
-    <div id="cMenu"><div class="chips" id="cats"></div><div class="grid" id="menu"></div></div>
+    <div id="cMenu"><label class="rfield isearch" style="margin:0 0 10px"><input type="search" id="menuQ" inputmode="search" placeholder="Tìm món (không cần gõ dấu)" oninput="renderMenu()"></label><div class="chips" id="cats"></div><div class="grid" id="menu"></div></div>
     <div id="cOrders" class="hidden"></div>
   </div>
   <div class="cartbar hidden" id="cartBar" style="position:fixed;left:12px;right:12px;bottom:14px;z-index:6;max-width:900px;margin:0 auto;background:var(--ink);color:#fff;border-radius:16px;padding:12px 14px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 10px 30px rgba(0,0,0,.25)"><span id="cartSummary" style="font-weight:600"></span><button class="btn acc sm" onclick="openCart()">Xem giỏ hàng</button></div>
@@ -408,7 +408,7 @@ function sameYear(i,d){return i.time.getFullYear()===d.getFullYear()}
 function canConfirm(){return !!(staffSession&&staffSession.ref.role==="quay")}
 function uniq(a){return a.filter(function(v,i,x){return x.indexOf(v)===i})}
 // Sửa hóa đơn: tạo hóa đơn mới, giữ nguyên hóa đơn cũ và ghi chú lý do + các thay đổi
-function sumInv(p){return invoices.filter(function(i){return !i.replacedBy}).filter(p).reduce(function(s,i){return s+i.total},0)}
+function sumInv(p){return invoices.filter(function(i){return !i.replacedBy&&!i.voided}).filter(p).reduce(function(s,i){return s+i.total},0)}
 function stat(l,v){return '<div class="stat"><small>'+l+'</small><b>'+v+'</b></div>'}
 function pill(s){return '<span class="pill p-'+s+'">'+ST[s]+'</span>'}
 function openModal(h){document.getElementById("modal").innerHTML=h;document.getElementById("ov").classList.add("open")}
@@ -446,12 +446,14 @@ function cTab(t){
   document.getElementById("ctOrd").classList.toggle("on",t==="orders");
   if(t==="orders") renderMyOrders(); else renderMenu();
 }
+function noDau(t){return String(t).normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/đ/g,"d").toLowerCase()}
 function setCat(c){curCat=c;renderMenu()}
 function renderMenu(){
   var cats=["Tất cả"].concat(groups);
   document.getElementById("cats").innerHTML=cats.map(function(c){return '<button class="chip '+(c===curCat?'on':'')+'" onclick="setCat(\''+esc(c)+'\')">'+esc(c)+'</button>'}).join("");
-  var list=menu.filter(function(m){return curCat==="Tất cả"||m.cat===curCat});
-  document.getElementById("menu").innerHTML=list.map(function(m){
+  var mq=noDau(fv("menuQ").trim());
+  var list=menu.filter(function(m){return (curCat==="Tất cả"||m.cat===curCat)&&(!mq||noDau(m.name).indexOf(mq)>=0)});
+  document.getElementById("menu").innerHTML=(list.length?"":'<div class="muted" style="grid-column:1/-1;text-align:center;padding:24px">Không tìm thấy món nào khớp.</div>')+list.map(function(m){
     var q=cart[m.id]||0;
     var img=m.img?"background-image:url('"+m.img+"')":"";
     var action=!m.stock?'<div class="muted" style="margin-top:10px">Tạm hết món</div>':(q===0?'<button class="padd" onclick="change('+m.id+',1)">Thêm</button>':'<div class="stepper"><button onclick="change('+m.id+',-1)">−</button><span>'+q+'</span><button onclick="change('+m.id+',1)">+</button></div>');
@@ -952,7 +954,7 @@ function kmInPeriod(i){var n=new Date();return kmPeriod==="day"?sameDay(i,n):kmP
 function kmSetPeriod(p){kmPeriod=p;renderOwner()}
 function kmReport(){
   var by={},man={},gifts={},disc=0,n=0;
-  invoices.filter(function(i){return !i.replacedBy&&kmInPeriod(i)}).forEach(function(inv){
+  invoices.filter(function(i){return !i.replacedBy&&!i.voided&&kmInPeriod(i)}).forEach(function(inv){
     (inv.promos||[]).forEach(function(p){var x=by[p.name]=by[p.name]||{n:0,v:0};x.n++;x.v+=p.v});
     (inv.gifts||[]).forEach(function(g){gifts[g.name]=(gifts[g.name]||0)+g.q});
     if(inv.manual){var k=(inv.manual.by||"?")+" · "+inv.manual.reason,x=man[k]=man[k]||{n:0,v:0};x.n++;x.v+=inv.manual.v}
@@ -1087,17 +1089,18 @@ function ownerOverview(){
   return '<div class="stats">'+stat("Bàn đang có khách",busy.length)+stat("Bàn đang trống",tableList.length-busy.length)+stat("Đơn đang mở",orders.filter(isOpen).length)+stat("Doanh thu hôm nay",money(sumInv(function(i){return sameDay(i,now)})))+'</div>'+
     (req?'<div class="banner warm">🔔 Có '+req+' bàn đang yêu cầu thanh toán</div>':'')+'<p class="muted">Chi tiết bàn ở mục Bàn & QR, doanh thu ở mục Doanh thu.</p>';
 }
-function invRow(inv,i){return '<div class="card row"><div class="grow"><b>'+inv.no+' · Bàn '+inv.table+'</b>'+(inv.replacedBy?' <span class="pill p-tra">Đã thay thế</span>':(inv.from?' <span class="pill p-cho">Bản sửa</span>':''))+'<small>'+fmtTime(inv.time)+(inv.note?' · Ghi chú: '+esc(inv.note):'')+'</small></div><b>'+money(inv.total)+'</b><button class="btn sm ghost" onclick="viewInv('+i+')">Xem</button></div>'}
+function invRow(inv,i){return '<div class="card row"><div class="grow"><b>'+inv.no+' · Bàn '+inv.table+'</b>'+(inv.voided?' <span class="pill p-huy">Đã hủy</span>':inv.replacedBy?' <span class="pill p-tra">Đã thay thế</span>':(inv.from?' <span class="pill p-cho">Bản sửa</span>':''))+'<small>'+fmtTime(inv.time)+(inv.note?' · Ghi chú: '+esc(inv.note):'')+'</small></div><b>'+money(inv.total)+'</b><button class="btn sm ghost" onclick="viewInv('+i+')">Xem</button></div>'}
 function viewInv(i){openInvView(i)}
 function openInvView(i){
-  var inv=invoices[i], can=canEdit()&&!inv.replacedBy;
+  var inv=invoices[i], can=canEdit()&&!inv.replacedBy&&!inv.voided;
   var repl=inv.replacedBy?'<div class="banner warm">Hóa đơn này đã được thay bằng '+esc(inv.replacedBy)+'. Hóa đơn cũ vẫn được giữ lại để đối chiếu.</div><button class="btn ghost block" onclick="openInvView('+invoices.findIndex(function(x){return x.no===inv.replacedBy})+')">Xem hóa đơn mới</button>':'';
+  var vd=inv.voided?'<div class="banner warm"><b>Hóa đơn đã hủy</b><div style="font-size:14px;margin-top:4px">Lý do: '+esc(inv.voided.reason)+'</div><div class="muted">Người hủy: '+esc(inv.voided.by)+' · '+fmtTime(inv.voided.at)+'</div></div>':'';
   var noteBox=inv.from?'<div class="card" style="margin:12px 0;background:#F0F9FF;border-color:#BAE6FD"><b>Ghi chú sửa từ '+esc(inv.from)+'</b><div style="font-size:14px;margin-top:4px">Lý do: '+esc(inv.note||"")+'</div>'+(inv.changes&&inv.changes.length?'<ul style="margin:8px 0 0;padding-left:18px;font-size:14px">'+inv.changes.map(function(c){return '<li>'+esc(c)+'</li>'}).join("")+'</ul>':'')+'<div class="muted" style="margin-top:6px">Người sửa: '+esc(inv.editedBy||"")+' · '+fmtTime(inv.editedAt||inv.time)+'</div></div>':'';
   var staffBox='<div class="card" style="font-size:14px"><b>Nhân viên ghi nhận</b><div class="muted" style="margin-top:4px">Gọi món: '+esc(inv.orderStaff||"Khách")+'</div><div class="muted">Xác nhận: '+esc(inv.confirmStaff||"—")+'</div><div class="muted">Thanh toán: '+esc(inv.paidBy||"—")+'</div></div>';
   openModal(receiptHtml(inv,false)+
-    repl+noteBox+'<div style="margin-top:10px">'+staffBox+'</div>'+
+    vd+repl+noteBox+'<div style="margin-top:10px">'+staffBox+'</div>'+
     '<div class="muted" style="font-size:12px;margin-top:8px">Đã in: '+(inv.prints||0)+' lần</div>'+
-    '<div class="noprint" style="margin-top:14px;display:grid;gap:8px"><button class="btn acc block" style="height:48px" onclick="printInv('+i+')">In lại hóa đơn</button>'+(can?'<button class="btn ghost block" onclick="editInv('+i+')">Sửa hóa đơn (tạo hóa đơn mới)</button>':'')+'<button class="btn ghost block" onclick="closeModal()">Đóng</button></div>');
+    '<div class="noprint" style="margin-top:14px;display:grid;gap:8px"><button class="btn acc block" style="height:48px" onclick="printInv('+i+')">In lại hóa đơn</button>'+(can?'<button class="btn ghost block" onclick="editInv('+i+')">Sửa hóa đơn (tạo hóa đơn mới)</button>':'')+(can&&AS==="owner"?'<button class="btn bad block" onclick="voidInv('+i+')">Hủy hóa đơn</button>':'')+'<button class="btn ghost block" onclick="closeModal()">Đóng</button></div>');
 }
 function printInv(i){showInvoice(invoices[i],true)}
 function editInv(i){
@@ -1153,7 +1156,7 @@ function revLabel(){
   return "năm "+revYr;
 }
 function revFile(){revInit();return "doanh-thu-"+(revPeriod==="range"?revFrom+"_den_"+revTo:revPeriod==="day"?revDay:revPeriod==="month"?revMon:revYr)+".xlsx"}
-function activeInv(){return invoices.filter(function(i){return !i.replacedBy})}
+function activeInv(){return invoices.filter(function(i){return !i.replacedBy&&!i.voided})}
 function setRange(f,t){
   revInit();
   var nf=f||revFrom, nt=t||revTo;
@@ -1204,7 +1207,7 @@ function ownerRevenue(){
   } else {
     picker='<label class="rfield"><span>Chọn năm</span><select onchange="revYr=Number(this.value);renderOwner()">'+years.map(function(y){return '<option'+(y===Number(revYr)?' selected':'')+'>'+y+'</option>'}).join("")+'</select></label>';
   }
-  var list=invoices.map(function(inv,i){return {inv:inv,i:i}}).filter(function(x){return !x.inv.replacedBy&&pred(x.inv)}).reverse();
+  var list=invoices.map(function(inv,i){return {inv:inv,i:i}}).filter(function(x){return !x.inv.replacedBy&&!x.inv.voided&&pred(x.inv)}).reverse();
   var total=list.reduce(function(s,x){return s+x.inv.total},0);
   var bd=revBreakdown(list.map(function(x){return x.inv}));
   var max=Math.max.apply(null,bd.rows.map(function(r){return r.amt}).concat([1]));
@@ -1234,7 +1237,7 @@ function invMatch(inv){
 }
 function invResults(){
   var list=invoices.map(function(inv,i){return {inv:inv,i:i}}).filter(function(x){return invMatch(x.inv)}).reverse();
-  var sum=list.filter(function(x){return !x.inv.replacedBy}).reduce(function(s,x){return s+x.inv.total},0);
+  var sum=list.filter(function(x){return !x.inv.replacedBy&&!x.inv.voided}).reduce(function(s,x){return s+x.inv.total},0);
   var on=invQ.code||invQ.day||invQ.from||invQ.to||invQ.table;
   return '<div class="ifound"><span>'+(on?'Tìm thấy ':'Tất cả ')+'<b>'+list.length+'</b> hóa đơn</span><span>Tổng: <b>'+money(sum)+'</b></span></div>'+
     (list.length?capList(list,function(x){return invRow(x.inv,x.i)}):'<div class="card muted" style="text-align:center;padding:24px">Không có hóa đơn khớp bộ lọc.</div>');
@@ -1674,6 +1677,16 @@ function saveStaff(){
   if(!PW_RE.test(pw)){setErr("sPw","Mật khẩu 6–30 ký tự, gồm cả chữ và số");ok=false;} else setErr("sPw","");
   if(!ok) return;
   api("staff-add",{name:name,phone:phone,role:fv("sRole"),pw:pw}).then(function(){closeModal();toast("Đã thêm nhân viên "+name,"ok")}).catch(function(){});
+}
+function voidInv(i){
+  var inv=invoices[i];
+  openModal('<h3>Hủy hóa đơn '+inv.no+'</h3><div class="muted" style="white-space:normal">Hóa đơn vẫn được giữ trong sổ nhưng không tính vào doanh thu. Lượt khuyến mãi và điểm tích của khách được hoàn lại. Không thể khôi phục.</div><div class="field" style="margin-top:12px"><label>Lý do hủy (bắt buộc)</label><input id="voidReason" maxlength="120" placeholder="Ví dụ: khách bỏ về, bấm nhầm bàn"><div class="err" id="voidReason_m"></div></div><button class="btn bad block" style="height:48px" onclick="doVoid('+i+')">Xác nhận hủy hóa đơn</button><button class="btn ghost block" onclick="openInvView('+i+')">Không hủy</button>');
+}
+async function doVoid(i){
+  var reason=fv("voidReason").trim();
+  if(reason.length<5||reason.length>120){setErr("voidReason","Ghi lý do hủy từ 5–120 ký tự");return;}
+  try{await api("invoice-void",{no:invoices[i].no,reason:reason})}catch(e){return}
+  await loadState(); toast("Đã hủy hóa đơn","ok"); closeModal();
 }
 async function saveInv(){
   var reason=fv("editReason").trim();

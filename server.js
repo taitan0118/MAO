@@ -146,7 +146,7 @@ function payQuote(list, b) { // tính tiền một bàn (các đơn đã phục 
   return KM.quote(kmCtx(), flat(list), { at: firstTime(list), code, phone, manual });
 }
 function invPromo(R, extra) { // phần khuyến mãi lưu trên hóa đơn
-  return Object.assign({ sub: R.sub, disc: R.disc, promos: R.applied.map(a => ({ name: a.name, v: a.v })), gifts: R.gifts, itemDisc: R.itemDisc, capAdj: R.adj }, extra);
+  return Object.assign({ sub: R.sub, disc: R.disc, promos: R.applied.map(a => ({ name: a.name, v: a.v })), promoIds: R.applied.map(a => a.id), gifts: R.gifts, itemDisc: R.itemDisc, capAdj: R.adj }, extra);
 }
 function diffItems(a, b) {
   const out = [], names = uniq(a.concat(b).map(l => l.name)), sum = (arr, n) => arr.filter(l => l.name === n).reduce((s, l) => s + l.q, 0);
@@ -309,7 +309,7 @@ act('pay', 'staff', (b, c) => {
   const items = flat(list), names = k => uniq(list.map(o => o[k])), R = payQuote(list, b);
   const inv = { no: 'HD' + (++db.seq.inv), table: t, time: new Date().toISOString(), items, total: R.total,
     paidBy: c.user.name, orderStaff: names('takenBy').join(', '), confirmStaff: names('confirmedBy').join(', '), servedStaff: names('servedBy').join(', '), prints: 0 };
-  Object.assign(inv, invPromo(R, { code: (R.applied.find(a => a.code) || {}).code, phone: R.stamp ? R.stamp.phone : undefined, stampHave: R.stamp ? R.stamp.have : undefined,
+  Object.assign(inv, invPromo(R, { code: (R.applied.find(a => a.code) || {}).code, phone: R.stamp ? R.stamp.phone : undefined, stampHave: R.stamp ? R.stamp.have : undefined, stampDelta: R.stamp ? R.stamp.after - R.stamp.have : undefined,
     manual: b.manual && R.manualV ? { pct: Number(b.manual.pct), reason: b.manual.reason, v: R.manualV, by: c.user.name } : undefined }));
   R.applied.forEach(a => { const p = db.promos.find(x => x.id === a.id); if (p) p.used++; }); // chỉ tính lượt khi đơn đã thanh toán
   if (R.stamp) { if (R.stamp.after > 0) db.stamps[R.stamp.phone] = R.stamp.after; else delete db.stamps[R.stamp.phone]; }
@@ -335,12 +335,21 @@ act('invoice-edit', 'quayOrOwner', (b, c) => {
   need(changes.length, 'Chưa có thay đổi nào so với hóa đơn cũ');
   const R = KM.quote({ promos: db.promos, menu: db.menu, cfg: db.promoCfg, stamps: orig.phone && orig.stampHave != null ? { [orig.phone]: orig.stampHave } : {} }, items,
     { at: Date.parse(orig.time), code: orig.code, phone: orig.phone, ignoreQuota: true, manual: orig.manual ? { pct: orig.manual.pct, reason: orig.manual.reason } : null }); // tính lại theo giờ lúc thanh toán, không đụng số lượt đã dùng
-  const nv = Object.assign({}, orig, invPromo(R, { manual: orig.manual ? Object.assign({}, orig.manual, { v: R.manualV }) : undefined }),
+  const nv = Object.assign({}, orig, invPromo(R, { promoIds: orig.promoIds, manual: orig.manual ? Object.assign({}, orig.manual, { v: R.manualV }) : undefined }),
     { no: 'HD' + (++db.seq.inv), items, total: R.total, from: orig.no, note: reason, changes,
     editedBy: c.user.name, editedAt: new Date().toISOString(), prints: 0, replacedBy: undefined });
   orig.replacedBy = nv.no;
   db.invoices.push(nv);
   return { invoice: nv };
+});
+act('invoice-void', 'owner', (b, c) => { // hủy hóa đơn: giữ lại trong sổ, trừ doanh thu, hoàn lượt khuyến mãi và điểm tích
+  const inv = db.invoices.find(x => x.no === b.no), reason = str(b.reason, 120);
+  need(inv && !inv.replacedBy && !inv.voided, 'Hóa đơn không tồn tại, đã được thay thế hoặc đã hủy');
+  need(reason.length >= 5, 'Ghi lý do hủy từ 5–120 ký tự');
+  inv.voided = { by: c.user.name, at: new Date().toISOString(), reason };
+  (inv.promoIds || []).forEach(id => { const p = db.promos.find(x => x.id === id); if (p && p.used > 0) p.used--; });
+  if (inv.phone && inv.stampDelta) { const n = Math.max(0, (db.stamps[inv.phone] || 0) - inv.stampDelta); if (n > 0) db.stamps[inv.phone] = n; else delete db.stamps[inv.phone]; }
+  return { invoice: inv };
 });
 act('staff-code', 'quayOrOwner', b => {
   const s = db.staff.find(x => x.id === Number(b.id));
