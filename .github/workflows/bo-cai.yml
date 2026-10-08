@@ -113,3 +113,11 @@ jobs:
           ls -la out
           gh release delete ban-moi-nhat --yes --cleanup-tag || true
           gh release create ban-moi-nhat out/* --target "${{ github.sha }}" --title "MAO bản mới nhất" --notes-file notes.md
+      - name: Phát hành công khai sang MAO-tai-ve (không chứa mã nguồn)
+        env: { GH_TOKEN: '${{ secrets.TAI_VE_TOKEN }}', GH_REPO: 'taitan0118/MAO-tai-ve' }
+        run: |
+          if [ -z "$GH_TOKEN" ]; then echo "Chưa có secret TAI_VE_TOKEN, bỏ qua bước này"; exit 0; fi
+          sed 's#${{ github.repository }}#taitan0118/MAO-tai-ve#g' notes.md > notes-public.md
+          cp LICENSE out/LICENSE.txt
+          gh release delete ban-moi-nhat --yes --cleanup-tag || true
+          gh release create ban-moi-nhat out/* --target main --title "MAO bản mới nhất" --notes-file notes-public.md
