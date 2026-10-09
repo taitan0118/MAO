@@ -723,7 +723,7 @@ async function saveFile(filename,buf){
   }catch(e){toast("Trình duyệt này không cho tải file","bad")}
 }
 // ---------- Excel đẹp (ExcelJS): màu thương hiệu, định dạng tiền, khung, cố định tiêu đề ----------
-var XC={blue:"FF2563EB",navy:"FF0F172A",sky:"FF38BDF8",bg:"FFF8FAFC",line:"FF94A3B8",grid:"FFCBD5E1",light:"FFEFF6FF",total:"FFDBEAFE",white:"FFFFFFFF",mute:"FF64748B"};
+var XC={blue:"FF2563EB",navy:"FF1E3A8A",head:"FF1D4ED8",sky:"FF38BDF8",bg:"FFF8FAFC",line:"FF94A3B8",grid:"FFCBD5E1",light:"FFEFF6FF",total:"FFDBEAFE",white:"FFFFFFFF",mute:"FF64748B"};
 var MONEY='#,##0" đ"';
 function excelReady(){if(typeof ExcelJS==="undefined"){toast("Chưa tải được thư viện Excel, kiểm tra kết nối internet rồi thử lại","bad");return false}return true}
 function xfill(c){return {type:"pattern",pattern:"solid",fgColor:{argb:c}}}
@@ -739,7 +739,7 @@ function xTitle(ws,title,sub,ncol){
 }
 function xHeader(ws,r,heads){
   var row=ws.getRow(r);
-  heads.forEach(function(h,i){var c=row.getCell(i+1);c.value=h;c.font={bold:true,size:11,color:{argb:XC.white}};c.fill=xfill(XC.navy);c.alignment={vertical:"middle",horizontal:"center",wrapText:true};c.border=xborder(XC.navy,"medium")});
+  heads.forEach(function(h,i){var c=row.getCell(i+1);c.value=h;c.font={bold:true,size:11,color:{argb:XC.white}};c.fill=xfill(XC.head);c.alignment={vertical:"middle",horizontal:"center",wrapText:true};c.border=xborder(XC.head,"medium")});
   row.height=28;
 }
 function xRows(ws,start,rows,fmts,aligns){
