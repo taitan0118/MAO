@@ -234,6 +234,7 @@ h4{color:#2563EB}
 /* ===== Hóa đơn kiểu bill máy in nhiệt ===== */
 .rcpt{background:#fff;color:#000;font-family:ui-monospace,"SF Mono",Menlo,Consolas,"Courier New",monospace;font-size:13px;line-height:1.5;max-width:300px;margin:0 auto;padding:16px 14px;border:1px solid #E2E8F0;box-shadow:0 2px 10px rgba(15,23,42,.06)}
 .rcpt .c{text-align:center}.rcpt .b{font-weight:700}.rcpt .big{font-size:16px}.rcpt .sm{font-size:11px}
+.rcpt.kt .ktb{font-size:34px;font-weight:800;line-height:1.2}.rcpt.kt .ktl{font-size:18px;line-height:1.35;margin-top:6px;overflow-wrap:anywhere}.rcpt.kt .ktn{font-size:15px;font-weight:700;border:2px solid #000;padding:4px 6px;margin-top:8px}
 .rcpt .hr{border-top:1px dashed #000;margin:8px 0}
 .rcpt .nm{margin-top:4px}
 .rcpt .it{display:grid;grid-template-columns:1fr 3ch 1fr;gap:6px}
@@ -386,7 +387,7 @@ var PW_RE=/^(?=.*[A-Za-z])(?=.*\d).{6,30}$/;
 var pendingStaff=null,pendingFails=0,pendingCode=null;
 var ownerSession=null;
 var invoices=[];
-var promos=[],promoCfg={manualMax:10},manualReasons=[],guestQuote=null,payQ=null,payQKey="",payLoading=false,payCode="",payPhone="",payManual=null,kmPeriod="all";
+var kitchen={mode:"manual"},promos=[],promoCfg={manualMax:10},manualReasons=[],guestQuote=null,payQ=null,payQKey="",payLoading=false,payCode="",payPhone="",payManual=null,kmPeriod="all";
 var invSeq=504,orders=[],seq=100,cart={},selNotes=[],cName="",cFree="",curCat="Tất cả",curView="customer",cTabV="menu",sTabV="orders",oTabV="tong",revPeriod="day",staffMode=false,payTable=null,myTable="05",payReq={},unseen=0,draftImg="";
 
 // ---------- Dữ liệu mẫu lớn để test (cố định, lần nào nạp cũng ra giống nhau) ----------
@@ -546,7 +547,7 @@ function renderBoard(){
   list.forEach(function(o){
     var acts=o.status==="cho"&&!canConfirm()?'<div class="muted">Chờ nhân viên quầy xác nhận</div>':o.status==="cho"?'<button class="btn b-blue" onclick="askSt('+o.id+',\'lam\')">Xác nhận</button><button class="btn b-red" onclick="askSt('+o.id+',\'huy\')">Từ chối</button>':(o.status==="lam"?'<button class="btn b-green" onclick="askSt('+o.id+',\'xong\')">Đã phục vụ</button>':'');
     var mins=Math.max(0,Math.round((Date.now()-o.time)/60000));
-    h+='<div class="card ord '+(o.status==="cho"?'new':'')+'"><div class="row"><div class="grow"><b>Bàn '+o.table+'</b><small>#'+o.id+' · '+esc(o.name)+(o.by==="Nhân viên"?' · gọi bởi '+esc(o.takenBy||''):'')+(o.confirmedBy?' · xác nhận: '+esc(o.confirmedBy):'')+' · '+fmtTime(o.time)+' · '+(mins<60?mins+' phút trước':Math.floor(mins/60)+' giờ trước')+'</small></div>'+pill(o.status)+'</div><div style="margin-top:8px">'+o.lines.map(function(l){return '<div class="line"><span>'+l.q+' × '+esc(l.name)+'</span></div>'}).join("")+'</div>'+(o.notes.length?'<div class="note">Ghi chú: '+esc(o.notes.join(", "))+'</div>':'')+'<div class="acts">'+acts+'</div></div>';
+    h+='<div class="card ord '+(o.status==="cho"?'new':'')+'"><div class="row"><div class="grow"><b>Bàn '+o.table+'</b><small>#'+o.id+' · '+esc(o.name)+(o.by==="Nhân viên"?' · gọi bởi '+esc(o.takenBy||''):'')+(o.confirmedBy?' · xác nhận: '+esc(o.confirmedBy):'')+' · '+fmtTime(o.time)+' · '+(mins<60?mins+' phút trước':Math.floor(mins/60)+' giờ trước')+'</small></div>'+pill(o.status)+'</div><div style="margin-top:8px">'+o.lines.map(function(l){return '<div class="line"><span>'+l.q+' × '+esc(l.name)+'</span></div>'}).join("")+'</div>'+(o.notes.length?'<div class="note">Ghi chú: '+esc(o.notes.join(", "))+'</div>':'')+'<div class="acts">'+acts+(canConfirm()&&kitchen.mode!=="off"&&(o.status==="lam"||o.status==="xong")?'<button class="btn ghost" onclick="showKitchen('+o.id+')">🖨 In bếp</button>':'')+'</div></div>';
   });
   document.getElementById("sOrders").innerHTML=h+'</div>';
 }
@@ -1347,6 +1348,8 @@ function ownerSettings(){
     '<div class="field"><label>Số tài khoản</label><input id="setAcc" inputmode="numeric" maxlength="20" value="'+esc(bank.acc)+'"><div class="err" id="setAcc_m"></div></div>'+
     '<div class="field"><label>Chủ tài khoản</label><input id="sHolder" maxlength="40" value="'+esc(bank.holder)+'"></div>'+
     '<button class="btn acc block" onclick="saveSettings()">Lưu thông tin</button></div>'+
+    '<div class="card"><h4 style="margin-top:0">In phiếu cho bếp</h4><div class="muted" style="font-size:14px;margin-bottom:8px">Phiếu in khi nhân viên quầy xác nhận đơn, có món, giá và ghi chú của khách.</div>'+
+    '<div class="field"><label>Chế độ</label><select id="kMode" onchange="saveKitchen()"><option value="off"'+(kitchen.mode==="off"?' selected':'')+'>Tắt, không in phiếu bếp</option><option value="manual"'+(kitchen.mode==="manual"?' selected':'')+'>Thủ công, bấm nút In bếp trên đơn</option><option value="auto"'+(kitchen.mode==="auto"?' selected':'')+'>Tự động, in ngay khi xác nhận đơn</option></select></div></div>'+
     '<div class="card"><h4 style="margin-top:0">Thông tin thiết bị</h4><div id="devInfo" class="muted" style="font-size:14px">Đang tải…</div>'+
     '<div class="row" style="margin-top:10px;gap:8px"><button class="btn block" onclick="devCopy()">Sao chép</button><button class="btn block" onclick="devSave()">Tải về (.txt)</button></div></div>'+
     '<div class="card"><h4 style="margin-top:0">Giới thiệu</h4><div style="font-size:14px;line-height:1.6"><b>MAO</b> (Missing App Order)<br>© 2026 Nguyễn Tấn Tài (Missing)<br><span class="muted">Dùng miễn phí cho quán của bạn. Không được bán lại hoặc phân phối lại. Xem file LICENSE.txt đi kèm.</span></div></div>';
@@ -1389,7 +1392,7 @@ function applyState(j){
   if(j.shop.bank!==undefined) bank={bank:j.shop.bank,acc:j.shop.acc||"",holder:j.shop.holder||""};
   groups=j.groups||[]; menu=j.menu||[]; tableList=j.tables||[]; orders=j.orders||[]; reviveDates(orders);
   invoices=j.invoices||[]; reviveDates(invoices); payReq=j.payReq||{}; staffList=j.staff||[];
-  promos=j.promos||[]; promoCfg=j.promoCfg||{manualMax:10}; manualReasons=j.manualReasons||[]; guestQuote=j.quote||null;
+  promos=j.promos||[]; promoCfg=j.promoCfg||{manualMax:10}; kitchen=j.kitchen||{mode:"manual"}; manualReasons=j.manualReasons||[]; guestQuote=j.quote||null;
   if(AS==="staff") staffSession=j.me?{ref:j.me,name:j.me.name}:null;
   if(AS==="owner") ownerSession=j.me?{ref:j.me,name:j.me.name}:null;
   if(AS==="guest") TABLE_OK=!!j.table;
@@ -1485,7 +1488,25 @@ function resetCustomer(){
 }
 
 // ---------- Nhân viên ----------
-function setSt(id,to){api("set-status",{id:id,to:to}).catch(function(){})}
+function kitchenHtml(o){
+  var sub=o.lines.reduce(function(s,l){return s+l.q*l.price},0);
+  return '<div id="inv"><div class="rcpt kt">'+
+    '<div class="c b">PHIẾU BẾP</div><div class="hr"></div>'+
+    '<div class="c ktb">BÀN '+esc(o.table)+'</div>'+
+    '<div class="c sm">Đơn #'+o.id+' · '+fmtTime(o.time)+(o.name?' · '+esc(o.name):'')+'</div><div class="hr"></div>'+
+    o.lines.map(function(l){return '<div class="ktl"><b>'+l.q+' ×</b> '+esc(l.name)+'</div><div class="it sm"><span>'+num(l.price)+'</span><span></span><span>'+num(l.q*l.price)+'</span></div>'}).join("")+
+    '<div class="hr"></div><div class="tt"><span>Tạm tính</span><span>'+num(sub)+'đ</span></div>'+
+    (o.notes&&o.notes.length?'<div class="ktn">GHI CHÚ CỦA KHÁCH:<br>'+esc(o.notes.join(", "))+'</div>':'')+
+    '<div class="hr"></div><div class="c sm">Xác nhận: '+esc(o.confirmedBy||(staffSession&&staffSession.name)||"")+'</div>'+
+    '</div></div>';
+}
+function showKitchen(id,auto){
+  var o=orders.filter(function(x){return x.id===id})[0]; if(!o) return;
+  openModal(kitchenHtml(o)+'<button class="btn b-blue block noprint" style="height:48px;margin-top:10px" onclick="printKitchen()">In phiếu bếp</button><button class="btn ghost block noprint" onclick="closeModal()">Đóng</button>');
+  if(auto) setTimeout(printKitchen,300);
+}
+function printKitchen(){if(window.maoDesktop)maoDesktop.printReceipt();else window.print()}
+function setSt(id,to){api("set-status",{id:id,to:to}).then(function(){if(to==="lam"&&kitchen.mode==="auto"&&canConfirm())showKitchen(id,true)}).catch(function(){})}
 function doReject(id){
   var c=document.querySelector('input[name="rj"]:checked');
   if(!c){var e=document.getElementById("rj_m");if(e)e.textContent="Chọn một lý do";return;}
@@ -1599,6 +1620,7 @@ function doRecover(){
 }
 
 // ---------- Chủ quán: cài đặt, nhóm món, món, bàn, nhân viên, hóa đơn ----------
+function saveKitchen(){api("kitchen-cfg",{mode:fv("kMode")}).then(function(){toast("Đã lưu cách in phiếu bếp","ok")}).catch(function(){})}
 function saveSettings(){
   api("settings",{name:fv("sShop").trim(),addr:fv("sAddr").trim(),phone:fv("sPhoneShop").trim(),bank:fv("sBank"),acc:fv("setAcc").trim(),holder:fv("sHolder").trim(),logo:logoDraft})
     .then(function(){logoDraft=undefined;toast("Đã lưu thông tin quán","ok")}).catch(function(){});

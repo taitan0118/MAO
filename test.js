@@ -163,6 +163,12 @@ server.listen(0, '127.0.0.1', async () => {
     assert.ok((await own('promo-cfg', { holiday: true, manualMax: 10 })).ok);
     assert.equal((await call('promo-quote', { table: '03' }, 'lan')).quote.total, 0, 'dịp Tết/lễ');
     assert.ok((await own('promo-cfg', { holiday: false, manualMax: 10 })).ok);
+    assert.equal((await state('as=owner', 'owner')).kitchen.mode, 'manual', 'mặc định in thủ công');
+    assert.equal((await call('kitchen-cfg', { mode: 'auto' }, 'lan')).status, 401, 'quầy không đổi cách in');
+    assert.equal((await own('kitchen-cfg', { mode: 'xx' })).status, 400);
+    assert.ok((await own('kitchen-cfg', { mode: 'auto' })).ok);
+    assert.equal((await state('as=staff', 'lan')).kitchen.mode, 'auto', 'nhân viên nhận được cài đặt');
+    assert.ok((await own('kitchen-cfg', { mode: 'manual' })).ok);
     const allP = (await state('as=owner', 'owner')).promos;
     assert.ok((await own('promo-del', { id: allP.find(p => p.name === 'Tặng hết').id })).ok);
     // thẻ tích ly theo SĐT

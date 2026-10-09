@@ -18,7 +18,7 @@ function emptyDb() {
   return { ver: 1, shop: { name: '', addr: '', phone: '', bank: 'Vietcombank', acc: '', holder: '' },
     owners: [], staff: [], groups: ['Món chính', 'Đồ uống'], menu: [], tables: ['01', '02', '03', '04', '05'],
     orders: [], invoices: [], payReq: {}, seq: { order: 100, inv: 1000, menu: 0, staff: 0, owner: 0, promo: 0 }, sessions: {}, codes: {},
-    promos: [], stamps: {}, promoCfg: { holiday: false, manualMax: 10 } };
+    promos: [], stamps: {}, promoCfg: { holiday: false, manualMax: 10 }, kitchen: { mode: 'manual' } };
 }
 let db;
 if (fs.existsSync(DB_FILE)) db = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
@@ -194,13 +194,13 @@ function stateFor(as, ctx, q) {
     return Object.assign(base, { me: { name: me.name, phone: me.phone, role: 'owner' }, hasOwner: true,
       shop: db.shop, tables: db.tables, orders: db.orders, invoices: db.invoices, payReq: db.payReq,
       staff: db.staff.map(s => ({ id: s.id, name: s.name, phone: s.phone, role: s.role, active: s.active, codeExp: (codeOf(s.id) || {}).exp || 0 })),
-      promos: db.promos, promoCfg: db.promoCfg, manualReasons: MANUAL_REASONS });
+      promos: db.promos, promoCfg: db.promoCfg, kitchen: db.kitchen, manualReasons: MANUAL_REASONS });
   }
   if (as === 'staff') {
     const me = getUser(ctx.req, 'staff');
     if (!me) return Object.assign(base, { me: null });
     const st = Object.assign(base, { me: { id: me.id, name: me.name, role: me.role }, shop: db.shop, tables: db.tables,
-      orders: db.orders.filter(isOpen), payReq: db.payReq, promoCfg: db.promoCfg, manualReasons: MANUAL_REASONS });
+      orders: db.orders.filter(isOpen), payReq: db.payReq, promoCfg: db.promoCfg, kitchen: db.kitchen, manualReasons: MANUAL_REASONS });
     if (me.role === 'quay') { st.invoices = db.invoices; st.staff = db.staff.map(s => ({ id: s.id, name: s.name, role: s.role, active: s.active })); }
     return st;
   }
@@ -465,6 +465,10 @@ act('promo-save', 'owner', b => {
 });
 act('promo-toggle', 'owner', b => { const p = db.promos.find(x => x.id === Number(b.id)); need(p, 'Không tìm thấy chương trình'); p.on = !p.on; });
 act('promo-del', 'owner', b => { need(db.promos.some(x => x.id === Number(b.id)), 'Không tìm thấy chương trình'); db.promos = db.promos.filter(x => x.id !== Number(b.id)); });
+act('kitchen-cfg', 'owner', b => { // phiếu in cho bếp: tắt / bấm tay / tự in khi xác nhận đơn
+  need(['off', 'manual', 'auto'].includes(b.mode), 'Chọn Tắt, Thủ công hoặc Tự động');
+  db.kitchen = { mode: b.mode };
+});
 act('promo-cfg', 'owner', b => {
   const m = Number(b.manualMax); need(Number.isInteger(m) && m >= 0 && m <= 50, 'Mức giảm thủ công của nhân viên từ 0 đến 50%');
   db.promoCfg = { holiday: !!b.holiday, manualMax: m };
