@@ -1349,7 +1349,8 @@ function ownerSettings(){
     '<div class="field"><label>Chủ tài khoản</label><input id="sHolder" maxlength="40" value="'+esc(bank.holder)+'"></div>'+
     '<button class="btn acc block" onclick="saveSettings()">Lưu thông tin</button></div>'+
     '<div class="card"><h4 style="margin-top:0">In phiếu cho bếp</h4><div class="muted" style="font-size:14px;margin-bottom:8px">Phiếu in khi nhân viên quầy xác nhận đơn, có món, giá và ghi chú của khách.</div>'+
-    '<div class="field"><label>Chế độ</label><select id="kMode" onchange="saveKitchen()"><option value="off"'+(kitchen.mode==="off"?' selected':'')+'>Tắt, không in phiếu bếp</option><option value="manual"'+(kitchen.mode==="manual"?' selected':'')+'>Thủ công, bấm nút In bếp trên đơn</option><option value="auto"'+(kitchen.mode==="auto"?' selected':'')+'>Tự động, in ngay khi xác nhận đơn</option></select></div></div>'+
+    '<label class="row" style="flex-wrap:nowrap;gap:10px;margin:10px 0"><input type="checkbox" id="kOn" '+(kitchen.mode!=="off"?'checked':'')+' onchange="saveKitchen()" style="width:22px;height:22px"><b>Bật in phiếu cho bếp</b></label>'+
+    (kitchen.mode!=="off"?'<div class="field"><label>Cách in</label><select id="kMode" onchange="saveKitchen()"><option value="manual"'+(kitchen.mode==="manual"?' selected':'')+'>Thủ công, bấm nút In bếp trên đơn</option><option value="auto"'+(kitchen.mode==="auto"?' selected':'')+'>Tự động, in ngay khi xác nhận đơn</option></select></div>':'')+'</div>'+
     '<div class="card"><h4 style="margin-top:0">Thông tin thiết bị</h4><div id="devInfo" class="muted" style="font-size:14px">Đang tải…</div>'+
     '<div class="row" style="margin-top:10px;gap:8px"><button class="btn block" onclick="devCopy()">Sao chép</button><button class="btn block" onclick="devSave()">Tải về (.txt)</button></div></div>'+
     '<div class="card"><h4 style="margin-top:0">Giới thiệu</h4><div style="font-size:14px;line-height:1.6"><b>MAO</b> (Missing App Order)<br>© 2026 Nguyễn Tấn Tài (Missing)<br><span class="muted">Dùng miễn phí cho quán của bạn. Không được bán lại hoặc phân phối lại. Xem file LICENSE.txt đi kèm.</span></div></div>';
@@ -1620,7 +1621,7 @@ function doRecover(){
 }
 
 // ---------- Chủ quán: cài đặt, nhóm món, món, bàn, nhân viên, hóa đơn ----------
-function saveKitchen(){api("kitchen-cfg",{mode:fv("kMode")}).then(function(){toast("Đã lưu cách in phiếu bếp","ok")}).catch(function(){})}
+function saveKitchen(){var on=document.getElementById("kOn").checked,m=on?(document.getElementById("kMode")?fv("kMode"):"manual"):"off";api("kitchen-cfg",{mode:m}).then(function(){toast("Đã lưu cách in phiếu bếp","ok")}).catch(function(){})}
 function saveSettings(){
   api("settings",{name:fv("sShop").trim(),addr:fv("sAddr").trim(),phone:fv("sPhoneShop").trim(),bank:fv("sBank"),acc:fv("setAcc").trim(),holder:fv("sHolder").trim(),logo:logoDraft})
     .then(function(){logoDraft=undefined;toast("Đã lưu thông tin quán","ok")}).catch(function(){});
