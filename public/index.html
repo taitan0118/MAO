@@ -309,7 +309,7 @@ h4{color:#2563EB}
 /* Logo thương hiệu: logo Missing trong ô navy + chữ AO = MAO */
 .brand-lock{display:flex;align-items:center;gap:3px;flex:none}
 .logo-tile{width:36px;height:36px;border-radius:9px;background:#0F172A;display:grid;place-items:center;flex:none}
-#site-logo{display:block;width:28px;height:28px}
+#site-logo{display:block;width:32px;height:32px}
 #site-logo svg{display:block}
 #site-word{font-family:Manrope,system-ui,-apple-system,"Segoe UI",sans-serif;font-weight:800;font-size:22px;letter-spacing:-.02em;color:#fff;line-height:1}
 .brand-sep{width:1px;height:28px;background:rgba(255,255,255,.35);margin:0 4px;flex:none}
@@ -325,14 +325,14 @@ h4{color:#2563EB}
 <body>
 
 <div class="top" id="topBar">
-  <div class="brandrow"><span class="brand-lock" role="img" aria-label="MAO · Missing App Order" title="MAO · Missing App Order"><span class="logo-tile"><span id="site-logo"></span></span><span id="site-word">AO</span></span><span class="brand-sep"></span><div class="brand"><b id="shopLabel">Quán</b><span id="whoLabel"></span></div></div>
+  <div class="brandrow"><span class="brand-lock" role="img" aria-label="MAO · Missing App Order" title="MAO · Missing App Order"><span class="logo-tile"><span id="site-logo"></span></span><span id="site-word">MAO</span></span><span class="brand-sep"></span><div class="brand"><b id="shopLabel">Quán</b><span id="whoLabel"></span></div></div>
   <div class="seg">
     <button id="bC" class="on" onclick="show('customer')">Khách</button>
     <button id="bS" onclick="show('staff')">Nhân viên<span id="sBadge"></span></button>
     <button id="bO" onclick="show('owner')">Chủ quán</button>
   </div>
 </div><script src="/missing-logo.js"></script>
-<script>document.getElementById("site-logo").innerHTML=MissingLogo.svg({size:28,theme:"dark",label:"MAO"});
+<script>document.getElementById("site-logo").innerHTML=MissingLogo.svg({size:32,theme:"dark",label:"MAO",frame:true});
 if(!/[?&]ban=/.test(location.search))MissingLogo.intro({target:"#site-logo",word:"#site-word",theme:"dark"});</script>
 
 <div id="netBlockView" class="hidden"></div>
