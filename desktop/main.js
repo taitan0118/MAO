@@ -87,13 +87,18 @@ app.whenReady().then(() => {
     dialog.showErrorBox('MAO không mở được dữ liệu', String(e && e.message) + '\n\nThư mục dữ liệu: ' + process.env.DATA_DIR);
     return app.exit(1);
   }
+  // Windows hay chặn cổng 3000 (EACCES: nằm trong dải Hyper-V/WSL giữ chỗ): thử cổng khác, nhớ cổng chạy được
+  const ports = [...new Set([cfg.port, srv.PORT, 3001, 3002, 3003, 3010, 3100, 8080, 8090].filter(Boolean))];
+  srv.setPort(ports.shift());
   srv.server.on('error', e => {
+    if (e.code === 'EACCES' && ports.length) { srv.setPort(ports.shift()); return srv.server.listen(srv.PORT, '0.0.0.0'); }
     dialog.showErrorBox('MAO không chạy được', e.code === 'EADDRINUSE'
       ? 'Cổng ' + srv.PORT + ' đang bị chiếm, có thể MAO bản cũ (cửa sổ đen) đang chạy. Tắt nó rồi mở lại MAO.'
       : String(e.message));
     app.exit(1);
   });
   srv.server.listen(srv.PORT, '0.0.0.0', () => {
+    if (cfg.port !== srv.PORT) { cfg.port = srv.PORT; saveCfg(); }
     if (cfg.autostart === undefined) { app.setLoginItemSettings({ openAtLogin: true }); cfg.autostart = true; saveCfg(); } // lần đầu: bật tự chạy
     win = new BrowserWindow({ width: 1280, height: 860, minWidth: 380, minHeight: 600, icon: ICON, title: 'MAO', backgroundColor: '#F8FAFC',
       webPreferences: { preload: path.join(__dirname, 'preload.js'), backgroundThrottling: false } }); // thu nhỏ vẫn nhận đơn, kêu chuông

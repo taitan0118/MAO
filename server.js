@@ -4,7 +4,7 @@
 'use strict';
 const http = require('http'), fs = require('fs'), path = require('path'), crypto = require('crypto'), os = require('os');
 
-const PORT = +process.env.PORT || 3000;
+let PORT = +process.env.PORT || 3000; // desktop có thể đổi cổng nếu Windows chặn 3000 (setPort)
 const ROOT = __dirname;
 const DATA = process.env.DATA_DIR || path.join(ROOT, 'data');
 const KM = require('./khuyenmai');
@@ -586,4 +586,4 @@ if (require.main === module) {
     console.log('\n  Giữ cửa sổ này mở trong giờ bán. Đóng cửa sổ là tắt phần mềm.\n');
   });
 }
-module.exports = { server, netKind, diffItems, flat, lanUrl, PORT, DATA, get db() { return db; } };
+module.exports = { server, netKind, diffItems, flat, lanUrl, get PORT() { return PORT; }, setPort: p => { PORT = p; }, DATA, get db() { return db; } };
