@@ -184,6 +184,7 @@
    * opts.background overlay colour, default navy
    * opts.word       element holding the wordmark text (e.g. "missing") in the header; optional.
    *                 When given, the word runs out beside the logo, then flies into this element.
+   * opts.light      light overlay (#F8FAFC) with navy frame and blue legs instead of navy (default false)
    * opts.theme      legs colour of the TARGET logo: 'light' | 'dark' (default 'light')
    * opts.sound      play the sound logo (default true). Browsers only allow sound after the
    *                 visitor has interacted with the page, so on a cold page load it stays silent.
@@ -206,7 +207,8 @@
     if (!target || reduce || seen) { done(); return; }
     try { sessionStorage.setItem('missing-intro', '1'); } catch (e) {}
 
-    var legsIntro = COLORS.legsOnDark;
+    var legsIntro = opts.light ? COLORS.legsOnLight : COLORS.legsOnDark;
+    var ink = opts.light ? COLORS.navy : '#F8FAFC';
     var legsEnd = opts.theme === 'dark' ? COLORS.legsOnDark : COLORS.legsOnLight;
     target.style.visibility = 'hidden';
     if (word) word.style.visibility = 'hidden';
@@ -214,11 +216,11 @@
     var overlay = document.createElement('div');
     overlay.setAttribute('aria-hidden', 'true');
     overlay.style.cssText = 'position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;' +
-      'background:' + (opts.background || COLORS.navy) + ';cursor:pointer;';
+      'background:' + (opts.background || (opts.light ? '#F8FAFC' : COLORS.navy)) + ';cursor:pointer;';
     var size = Math.min(400, Math.round(Math.min(innerWidth, innerHeight) * 0.7));   // logo is drawn at 60% inside the frame
     overlay.innerHTML =
       '<svg viewBox="0 0 200 200" width="' + size + '" height="' + size + '" style="overflow:visible;transform-origin:0 0">' +
-      '<g class="mi-br" fill="none" stroke="#F8FAFC" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="0">' + BRK + '</g>' +
+      '<g class="mi-br" fill="none" stroke="' + ink + '" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" opacity="0">' + BRK + '</g>' +
       '<line class="mi-scan" x1="34" x2="166" y1="30" y2="30" stroke="' + COLORS.leaf + '" stroke-width="3" stroke-linecap="round" opacity="0"/>' +
       '<g transform="translate(100 100) scale(0.6) translate(-100 -100)"><g transform="translate(0 -6)"><g class="mi-shake">' +
       '<g class="mi-legL"><path class="mi-trailL" d="M-136 111.5 H-36" fill="none" stroke="' + legsIntro + '" stroke-width="4" stroke-linecap="round" stroke-dasharray="30 12"/>' +
@@ -238,7 +240,7 @@
       wordBox.style.cssText = 'overflow:hidden;width:0;flex:none;';
       wordText = document.createElement('span');
       wordText.textContent = word.textContent.trim();
-      wordText.style.cssText = 'display:inline-block;white-space:nowrap;line-height:1.3;color:#F8FAFC;transform-origin:0 0;' +
+      wordText.style.cssText = 'display:inline-block;white-space:nowrap;line-height:1.3;color:' + ink + ';transform-origin:0 0;' +
         'padding-left:' + Math.round(size * 0.024) + 'px;font-family:' + ws.fontFamily + ';font-weight:' + ws.fontWeight +
         ';letter-spacing:' + (ws.letterSpacing === 'normal' ? '0' : (parseFloat(ws.letterSpacing) / parseFloat(ws.fontSize)) + 'em') +
         ';font-size:' + Math.round(size * 0.252) + 'px;';
@@ -347,7 +349,7 @@
         var s2 = parseFloat(ws2.fontSize) / parseFloat(wordText.style.fontSize);
         var tx = b2.left - (a2.left + pad * s2), ty = (b2.top + b2.height / 2) - (a2.top + a2.height * s2 / 2);
         wordBox.style.overflow = 'visible';
-        wordText.animate([{ transform: 'none', color: '#F8FAFC' },
+        wordText.animate([{ transform: 'none', color: ink },
                           { transform: 'translate(' + tx + 'px,' + ty + 'px) scale(' + s2 + ')', color: ws2.color }],
           { duration: FLY, easing: 'cubic-bezier(.65,0,.35,1)', fill: 'forwards' });
       }
